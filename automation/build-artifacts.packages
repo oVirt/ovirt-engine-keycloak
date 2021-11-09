@@ -1,0 +1,8 @@
+coreutils
+curl
+dnf-utils
+findutils
+git
+rpmdevtools
+sed
+ovirt-engine-wildfly
