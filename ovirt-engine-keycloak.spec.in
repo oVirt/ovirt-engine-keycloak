@@ -1,0 +1,40 @@
+%global __jar_repack 0
+
+Name:		ovirt-engine-keycloak
+Version:	@VERSION@
+Release:	@RELEASE@%{?dist}
+Summary:	Keycloak SSO for oVirt Engine
+Group:		Virtualization/Management
+License:	ASL 2.0
+URL:		http://keycloak.org
+BuildArch:	noarch
+Source:		@SRC@
+Source1:	README.md
+
+BuildRequires:	curl
+BuildRequires:	unzip
+
+Requires: ovirt-engine-wildfly
+
+
+%description
+Keycloak SSO for oVirt Engine.
+
+
+%install
+mkdir -p %{buildroot}%{_datadir}
+unzip -d %{buildroot}%{_datadir}/%{name} %{SOURCE0}
+
+install -d -m 0755 "%{buildroot}%{_docdir}/%{name}"
+install -m 0644 "%{SOURCE1}" "%{buildroot}%{_docdir}/%{name}/README.md"
+install -d -m 0755 "%{buildroot}%{_datadir}/%{name}/modules"
+
+%files
+%{_datadir}/%{name}/
+%{_docdir}/%{name}/
+
+
+%changelog
+* Wed Nov 10 2021 Artur Socha <asocha@redhat.com> 15.0.2-1
+- Initial release
+
