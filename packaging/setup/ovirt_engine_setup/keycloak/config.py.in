@@ -1,0 +1,15 @@
+#
+# ovirt-engine-setup -- ovirt engine setup
+#
+# Copyright oVirt Authors
+# SPDX-License-Identifier: Apache-2.0
+#
+#
+
+
+"""Config."""
+
+PKG_SYSCONF_DIR = '@PKG_SYSCONF_DIR@'
+PKG_DATA_DIR = '@PKG_DATA_DIR@'
+
+# vim: expandtab tabstop=4 shiftwidth=4

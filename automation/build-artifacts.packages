@@ -3,6 +3,7 @@ curl
 dnf-utils
 findutils
 git
+make
+ovirt-engine-wildfly
 rpmdevtools
 sed
-ovirt-engine-wildfly
