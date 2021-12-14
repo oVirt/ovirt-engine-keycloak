@@ -4,9 +4,6 @@
 
 Welcome to the ovirt-engine-keycloak source repository.
 
-This repository is hosted on [gerrit.ovirt.org:ovirt-engine-keycloak](https://gerrit.ovirt.org/#/admin/projects/ovirt-engine-keycloak)
-and a **backup** of it is hosted on [GitHub:ovirt-engine-keycloak](https://github.com/oVirt/ovirt-engine-keycloak)
-
 
 ## How to contribute
 
