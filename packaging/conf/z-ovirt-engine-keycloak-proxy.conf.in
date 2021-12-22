@@ -1,0 +1,44 @@
+#
+# The name of this file name is very important, the "z-" prefix is used
+# to force the web server to load this file after all the other
+# configurations, in particular after the configuration of the required
+# proxy modules, otherwise the "IfModule" directives fail.
+#
+
+<IfModule !proxy_ajp_module>
+    # If you get an error in this block, it means that proxy_ajp_module is not:
+    # 1. loaded by other configuration of httpd
+    # 2. found in the path below (which is relative to ServerRoot)
+    LoadModule proxy_ajp_module modules/mod_proxy_ajp.so
+</IfModule>
+
+<IfModule proxy_ajp_module>
+
+    #
+    # Remove the Expect headers from API requests (this is needed to fix a
+    # problem with some API clients):
+    #
+    # This is required because otherwise Expect header, which is hop-by-hop
+    # will be caught by the Apache and will NOT be forwared to the proxy.
+    #
+    # It currenly is used here, which means GLOBALLY for the server. It is done
+    # this way because RequestHeader 'early' doesn't allow using in either
+    # 'Directory' or 'Location' nested clauses.
+    #
+    # TODO: find a way to filter Expect headers for /api name space only.
+    <IfModule headers_module>
+        RequestHeader unset Expect early
+    </IfModule>
+
+
+    # pass calls to keycloak endpoint
+    <LocationMatch ^/ovirt-engine-auth($|/)>
+        ProxyPassMatch ajp://127.0.0.1:@JBOSS_AJP_PORT@ timeout=3600 retry=5
+
+        <IfModule deflate_module>
+            AddOutputFilterByType DEFLATE text/javascript text/css text/html text/xml text/json application/xml application/json application/x-yaml
+        </IfModule>
+    </LocationMatch>
+
+</IfModule>
+

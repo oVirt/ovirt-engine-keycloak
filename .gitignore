@@ -1,0 +1,11 @@
+output
+*.zip
+*.tar.gz
+exported-artifacts
+rpmbuild
+.idea
+
+# template generated resources
+ovirt-engine-keycloak.spec
+packaging/setup/ovirt_engine_setup/keycloak/config.py
+build/python-check.sh

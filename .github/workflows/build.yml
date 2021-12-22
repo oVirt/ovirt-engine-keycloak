@@ -50,11 +50,11 @@ jobs:
       run: |
         dnf install -y \
           createrepo_c \
-          curl \
           dnf-utils \
           findutils \
           git \
           make \
+          python3-devel \
           rpm-build \
           sed
 
