@@ -101,9 +101,7 @@ ln -sf %{_datadir}/%{name}/bin/client/keycloak-client-registration-cli-@KEYCLOAK
 
 %files setup
 %{ovirt_engine_data}/setup/ovirt_engine_setup/keycloak/
-%{ovirt_engine_data}/setup/plugins/*/ovirt-engine-keycloak/apache
-%{ovirt_engine_data}/setup/plugins/*/ovirt-engine-keycloak/ovirt-engine
-
+%{ovirt_engine_data}/setup/plugins/*/ovirt-engine-keycloak/
 
 %changelog
 * Wed Nov 10 2021 Artur Socha <asocha@redhat.com> 15.0.2-1

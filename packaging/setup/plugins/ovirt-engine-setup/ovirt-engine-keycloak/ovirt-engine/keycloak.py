@@ -31,10 +31,8 @@ def _(m):
 class Plugin(plugin.PluginBase):
     """keycloak plugin."""
 
-
     def __init__(self, context):
         super(Plugin, self).__init__(context=context)
-
 
     @plugin.event(
         stage=plugin.Stages.STAGE_SETUP,
@@ -43,13 +41,17 @@ class Plugin(plugin.PluginBase):
         self.environment[oengcommcons.ConfigEnv.JAVA_NEEDED] = True
         self.environment[oengcommcons.ConfigEnv.JBOSS_NEEDED] = True
 
-
     @plugin.event(
         stage=plugin.Stages.STAGE_MISC,
         after=(
                 oengcommcons.Stages.DB_CONNECTION_AVAILABLE,
         ),
-        condition=lambda self: self.environment[oenginecons.CoreEnv.ENABLE],
+        condition=lambda self: (
+                self.environment[oenginecons.CoreEnv.ENABLE] and
+                self.environment[
+                    oenginecons.EngineDBEnv.NEW_DATABASE
+                ],
+        )
     )
     def _misc(self):
         content = [

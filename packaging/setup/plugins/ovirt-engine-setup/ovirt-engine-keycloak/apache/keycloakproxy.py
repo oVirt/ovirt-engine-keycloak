@@ -45,6 +45,9 @@ class Plugin(plugin.PluginBase):
         stage=plugin.Stages.STAGE_MISC,
         condition=lambda self: (
                     self.environment[oenginecons.CoreEnv.ENABLE] and
+                    self.environment[
+                        oenginecons.EngineDBEnv.NEW_DATABASE
+                    ] and
                     not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE]
         )
     )
