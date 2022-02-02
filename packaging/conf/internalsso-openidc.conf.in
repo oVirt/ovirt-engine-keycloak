@@ -1,0 +1,46 @@
+LoadModule auth_openidc_module modules/mod_auth_openidc.so
+
+# must point to your keycloak server
+OIDCProviderMetadataURL https://@ENGINE_FQDN@/@KEYCLOAK_WEB_CONTEXT@/realms/@OVIRT_REALM@/.well-known/openid-configuration
+OIDCSSLValidateServer Off
+
+# client id defined in Keycloak UI, other custom names are allowed
+OIDCClientID @CLIENT_ID@
+
+# client secret generated for the above CLIENT_ID from keycloak
+OIDCClientSecret @CLIENT_SECRET@
+
+# must point to your engine's
+OIDCRedirectURI https://@ENGINE_FQDN@/ovirt-engine/callback
+OIDCDefaultURL https://@ENGINE_FQDN@/ovirt-engine/login?scope=ovirt-app-admin+ovirt-app-portal+ovirt-ext%3Dauth%3Asequence-priority%3D%7E
+
+# maps the preferred_username claim to the REMOTE_USER environment variable
+OIDCRemoteUserClaim preferred_username
+OIDCCryptoPassphrase @RANDOM_CRYPTO_PASSPHRASE@
+
+<LocationMatch ^/ovirt-engine/sso/(interactive-login-negotiate|oauth/token-http-auth)|^/ovirt-engine/callback>
+    <If "req('Authorization') !~ /^(Bearer|Basic)/i">
+
+      Require valid-user
+      AuthType openid-connect
+
+      ErrorDocument 401 "<html><meta http-equiv=\"refresh\" content=\"0; url=/ovirt-engine/sso/login-unauthorized\"/><body><a href=\"/ovirt-engine/sso/login-unauthorized\">Here</a></body></html>"
+    </If>
+</LocationMatch>
+
+OIDCOAuthIntrospectionEndpoint https://@ENGINE_FQDN@/@KEYCLOAK_WEB_CONTEXT@/realms/@OVIRT_REALM@/protocol/openid-connect/token/introspect
+OIDCOAuthSSLValidateServer    Off
+OIDCOAuthIntrospectionEndpointParams token_type_hint=access_token
+
+# client id defined in Keycloak UI, other custom names are allowed
+OIDCOAuthClientID @CLIENT_ID@
+
+# client secret generated for the above CLIENT_ID from keycloak
+OIDCOAuthClientSecret @CLIENT_SECRET@
+
+OIDCOAuthRemoteUserClaim sub
+
+<LocationMatch ^/ovirt-engine/api($|/)>
+   AuthType oauth20
+   Require valid-user
+</LocationMatch>

@@ -33,6 +33,8 @@ Source:		%{name}-@RPM_VERSION@.tar.gz
 BuildRequires:	unzip
 
 Requires:	%{name}-setup >= %{version}
+Requires:	mod_auth_openidc
+Requires:	ovirt-engine-extension-aaa-misc
 
 %description
 Keycloak SSO for oVirt Engine.
@@ -85,6 +87,7 @@ ln -sf %{_datadir}/%{name}/modules/system/layers/keycloak %{buildroot}%{ovirt_en
 
 mkdir -p %{buildroot}%{_datadir}/ovirt-engine-wildfly/bin/client
 ln -sf %{_datadir}/%{name}/bin/add-user-keycloak.sh %{buildroot}%{ovirt_engine_wildfly_data}/bin/add-user-keycloak.sh
+ln -sf %{_datadir}/%{name}/bin/kcadm.sh %{buildroot}%{ovirt_engine_wildfly_data}/bin/kcadm.sh
 ln -sf %{_datadir}/%{name}/bin/client/keycloak-admin-cli-@KEYCLOAK_VERSION@.jar %{buildroot}%{ovirt_engine_wildfly_data}/bin/client/keycloak-admin-cli-@KEYCLOAK_VERSION@.jar
 ln -sf %{_datadir}/%{name}/bin/client/keycloak-client-registration-cli-@KEYCLOAK_VERSION@.jar %{buildroot}%{ovirt_engine_wildfly_data}/bin/client/keycloak-client-registration-cli-@KEYCLOAK_VERSION@.jar
 
@@ -97,6 +100,7 @@ ln -sf %{_datadir}/%{name}/bin/client/keycloak-client-registration-cli-@KEYCLOAK
 %{ovirt_engine_wildfly_data}/bin/client/keycloak-admin-cli-@KEYCLOAK_VERSION@.jar
 %{ovirt_engine_wildfly_data}/bin/client/keycloak-client-registration-cli-@KEYCLOAK_VERSION@.jar
 %{ovirt_engine_wildfly_data}/bin/add-user-keycloak.sh
+%{ovirt_engine_wildfly_data}/bin/kcadm.sh
 %{_docdir}/%{name}/
 
 %files setup

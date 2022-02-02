@@ -6,9 +6,10 @@
 #
 #
 
-"""keycloak httpd proxy plugin."""
+"""keycloak httpd internal sso openidc config plugin."""
 
 import gettext
+import secrets
 
 from otopi import constants as otopicons
 from otopi import filetransaction
@@ -27,7 +28,7 @@ def _(m):
 
 @util.export
 class Plugin(plugin.PluginBase):
-    """keycloak httpd proxy plugin."""
+    """keycloak httpd internal sso openidc config plugin."""
 
     def __init__(self, context):
         super(Plugin, self).__init__(context=context)
@@ -37,8 +38,8 @@ class Plugin(plugin.PluginBase):
     )
     def _init(self):
         self.environment.setdefault(
-            okkcons.ApacheEnv.HTTPD_CONF_OVIRT_ENGINE_KEYCLOAK,
-            okkcons.FileLocations.HTTPD_CONF_OVIRT_ENGINE_KEYCLOAK
+            okkcons.ApacheEnv.HTTPD_CONF_OVIRT_ENGINE_INTERNAL_SSO_OPENIDC,
+            okkcons.FileLocations.HTTPD_CONF_OVIRT_ENGINE_INTERNAL_SSO_OPENIDC,
         )
 
     @plugin.event(
@@ -47,23 +48,37 @@ class Plugin(plugin.PluginBase):
             self.environment[oenginecons.CoreEnv.ENABLE] and
             self.environment[oenginecons.EngineDBEnv.NEW_DATABASE] and
             not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE]
+        ),
+        after=(
+            okkcons.Stages.CLIENT_SECRET_GENERATED,
         )
     )
-    def _httpd_keycloak_misc(self):
+    def _internalsso_openidc(self):
         self.environment[oengcommcons.ApacheEnv.NEED_RESTART] = True
         self.environment[otopicons.CoreEnv.MAIN_TRANSACTION].append(
             filetransaction.FileTransaction(
                 name=self.environment[
-                    okkcons.ApacheEnv.HTTPD_CONF_OVIRT_ENGINE_KEYCLOAK
+                    okkcons.ApacheEnv.HTTPD_CONF_OVIRT_ENGINE_INTERNAL_SSO_OPENIDC
                 ],
                 content=outil.processTemplate(
                     template=(
-                        okkcons.FileLocations.HTTPD_CONF_OVIRT_ENGINE_KEYCLOAK_TEMPLATE
+                        okkcons.FileLocations.HTTPD_CONF_OVIRT_ENGINE_INTERNAL_SSO_OPENIDC_TEMPLATE
                     ),
                     subst={
-                        '@JBOSS_AJP_PORT@': self.environment[
-                            oengcommcons.ConfigEnv.JBOSS_AJP_PORT
+                        '@CLIENT_SECRET@': self.environment[
+                            okkcons.ConfigEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET
                         ],
+                        '@CLIENT_ID@':
+                            okkcons.Const.KEYCLOAK_INTERNAL_CLIENT_NAME,
+                        '@OVIRT_REALM@':
+                            okkcons.Const.KEYCLOAK_INTERNAL_REALM,
+                        '@ENGINE_FQDN@': self.environment[
+                            oenginecons.ConfigEnv.ENGINE_FQDN
+                        ],
+                        '@KEYCLOAK_WEB_CONTEXT@':
+                            okkcons.Const.KEYCLOAK_WEB_CONTEXT,
+                        '@RANDOM_CRYPTO_PASSPHRASE@':
+                            secrets.token_urlsafe(nbytes=16),
                     },
                 ),
                 modifiedList=self.environment[
@@ -71,5 +86,6 @@ class Plugin(plugin.PluginBase):
                 ],
             )
         )
+
 
 # vim: expandtab tabstop=4 shiftwidth=4
