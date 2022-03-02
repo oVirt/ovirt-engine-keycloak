@@ -21,6 +21,7 @@ from otopi import util
 from ovirt_engine_setup import constants as osetupcons
 from ovirt_engine_setup.engine import constants as oenginecons
 from ovirt_engine_setup.engine_common import constants as oengcommcons
+from ovirt_engine_setup.engine_common import database
 from ovirt_engine_setup.keycloak import constants as okkcons
 
 
@@ -54,6 +55,9 @@ class Plugin(plugin.PluginBase):
     @plugin.event(
         stage=plugin.Stages.STAGE_MISC,
         name=okkcons.Stages.CLIENT_SECRET_GENERATED,
+        after=(
+                okkcons.Stages.DB_CREDENTIALS_AVAILABLE,
+        ),
         condition=lambda self: (
             self.environment[oenginecons.CoreEnv.ENABLE] and
             self.environment[oenginecons.EngineDBEnv.NEW_DATABASE] and
@@ -67,6 +71,14 @@ class Plugin(plugin.PluginBase):
         userinfo_endpoint = self._build_endpoint_url("userinfo")
         token_endpoint = self._build_endpoint_url("token")
         logout_endpoint = self._build_endpoint_url("logout")
+
+        db_content = database.OvirtUtils(
+            plugin=self,
+            dbenvkeys=okkcons.Const.KEYCLOAK_DB_ENV_KEYS
+        ).getDBConfig(
+            prefix="KEYCLOAK"
+        )
+
         self.environment[otopicons.CoreEnv.MAIN_TRANSACTION].append(
             filetransaction.FileTransaction(
                 name=okkcons.FileLocations.OVIRT_ENGINE_SERVICE_CONFIG_KEYCLOAK,
@@ -87,6 +99,8 @@ class Plugin(plugin.PluginBase):
                     'EXTERNAL_OIDC_HTTPS_PKI_TRUST_STORE_PASSWORD="{pki_trust_pass}"\n'
                     'EXTERNAL_OIDC_SSL_VERIFY_CHAIN=true\n'
                     'EXTERNAL_OIDC_SSL_VERIFY_HOST=false\n'
+                    'KEYCLOAK_DB_MAX_CONNECTIONS={keycloak_db_max_connections}\n'
+                    '{db_content}\n'
                 ).format(
                     client_id=okkcons.Const.KEYCLOAK_INTERNAL_CLIENT_NAME,
                     client_secret=client_secret,
@@ -95,13 +109,14 @@ class Plugin(plugin.PluginBase):
                     logout_endpoint=logout_endpoint,
                     pki_trust_pass=oenginecons.Const.PKI_PASSWORD,
                     trust_store=oenginecons.FileLocations.OVIRT_ENGINE_PKI_ENGINE_TRUST_STORE,
+                    keycloak_db_max_connections=okkcons.Const.KEYCLOAK_DB_MAX_CONNECTIONS,
+                    db_content=db_content,
                 ),
                 modifiedList=self.environment[
                     otopicons.CoreEnv.MODIFIED_FILES
                 ],
             )
         )
-
         self.environment[otopicons.CoreEnv.MAIN_TRANSACTION].append(
             filetransaction.FileTransaction(
                 name=okkcons.FileLocations.OVIRT_ENGINE_SERVICE_KEYCLOAK_AUTHN,
@@ -183,6 +198,7 @@ class Plugin(plugin.PluginBase):
                 ],
             )
         )
+
 
     def _build_endpoint_url(self, endpoint):
         endpoint_url = 'https://{fqdn}/{keycloak_web_context}/realms/{realm}/protocol/openid-connect/{endpoint}'\

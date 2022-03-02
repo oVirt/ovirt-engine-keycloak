@@ -11,6 +11,7 @@
 import gettext
 import json
 import os
+import time
 
 from otopi import plugin
 from otopi import util
@@ -46,7 +47,11 @@ class Plugin(plugin.PluginBase):
     def _setup_ovirt(self):
         password = self.environment.get(oenginecons.ConfigEnv.ADMIN_PASSWORD)
         if password:
-            self.logger.info(_('Start with setting up Keycloak for Ovirt Engine'))
+            # TODO sometimes keycloak app is not ready soon enough  resulting
+            # in 503 error on attempt to use kcadm.sh / api
+            # This sleep is only a workaround until better way is found
+            time.sleep(30)
+            self.logger.info('Start with setting up Keycloak for Ovirt Engine')
             self._setup_keystore()
 
             self.logger.info(_('Logging in with Keycloak CLI admin'))
