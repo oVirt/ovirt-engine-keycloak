@@ -58,6 +58,7 @@ class Const(object):
     OVIRT_ADMINISTRATOR_USER_GROUP_NAME = 'ovirt-administrator'
     OVIRT_ENGINE_KEYCLOAK_SSO_EXTENSION_NAME = 'internalkeycloak'
     OVIRT_ENGINE_KEYCLOAK_SSO_PROFILE = 'internalsso'
+    OVIRT_ENGINE_KEYCLOAK_DB_BACKUP_PREFIX = 'keycloak'
 
     @classproperty
     def KEYCLOAK_DB_ENV_KEYS(self):
@@ -124,6 +125,13 @@ class ConfigEnv(object):
     )
     def KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET(self):
         return 'OVESETUP_KEYCLOAK/ovirtInternalClientSecret'
+
+    @osetupattrs(
+        answerfile=True,
+    )
+    def OVIRT_ENGINE_KEYCLOAK_DB_BACKUP_DIR(self):
+        return 'OVESETUP_KEYCLOAK_CONFIG/keycloakDbBackupDir'
+
 
 
 @util.export
@@ -262,12 +270,21 @@ class ProvisioningEnv(object):
     def POSTGRES_PROVISIONING_ENABLED(self):
         return 'OVESETUP_KEYCLOAK_PROVISIONING/postgresProvisioningEnabled'
 
-
+@util.export
+@util.codegen
+@osetupattrsclass
+class RemoveEnv(object):
+    @osetupattrs(
+        answerfile=True,
+    )
+    def REMOVE_DATABASE(self):
+        return 'OVESETUP_KEYCLOAK_REMOVE/database'
 
 @util.export
 @util.codegen
 class FileLocations(oesetupcons.FileLocations):
     PKG_DATA_DIR = config.PKG_DATA_DIR
+    PKG_STATE_DIR = config.PKG_STATE_DIR
 
     DIR_HTTPD = os.path.join(
         oesetupcons.FileLocations.SYSCONFDIR,
@@ -345,6 +362,11 @@ class FileLocations(oesetupcons.FileLocations):
     KEYCLOAK_ADD_INITIAL_ADMIN_FILE = os.path.join(
         OVIRT_ENGINE_CONFIG_DIR,
         "keycloak-add-user.json",
+    )
+
+    OVIRT_ENGINE_DEFAULT_KEYCLOAK_DB_BACKUP_DIR = os.path.join(
+        PKG_STATE_DIR,
+        'backups',
     )
 
 

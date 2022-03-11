@@ -4,6 +4,8 @@
 
 %global ovirt_engine_wildfly_data %{_datadir}/ovirt-engine-wildfly
 %global ovirt_engine_data %{_datadir}/ovirt-engine
+%global engine_group ovirt
+%global engine_user ovirt
 
 %global make_common_opts \\\
 	-j1 \\\
@@ -13,6 +15,7 @@
 	RPM_RELEASE=%{release} \\\
 	PREFIX=%{_prefix} \\\
 	DATAROOT_DIR=%{_datadir} \\\
+	LOCALSTATE_DIR=%{_localstatedir} \\\
 	%{?EXTRA_BUILD_FLAGS:EXTRA_BUILD_FLAGS="%{EXTRA_BUILD_FLAGS}"}
 
 
@@ -69,6 +72,11 @@ make %{make_common_opts}
 rm -fr "%{buildroot}"
 make %{make_common_opts} install DESTDIR=%{buildroot}
 
+
+# /var creation
+install -dm 755 "%{buildroot}/%{_localstatedir}/lib/ovirt-engine-keycloak"
+
+
 # Unzip downloaded keycloak overlay package
 mkdir -p %{buildroot}%{_datadir}
 unzip -d %{buildroot}%{_datadir}/%{name} @KEYCLOAK_OVERLAY_ZIP@
@@ -93,7 +101,9 @@ ln -sf %{_datadir}/%{name}/bin/client/keycloak-client-registration-cli-@KEYCLOAK
 
 
 %files
+%dir %attr(-, %{engine_user}, %{engine_group}) %{_localstatedir}/lib/ovirt-engine-keycloak/
 %{_datadir}/%{name}/
+%{_localstatedir}/lib/ovirt-engine-keycloak/backups/
 %{ovirt_engine_wildfly_data}/modules/layers.conf
 %{ovirt_engine_wildfly_data}/modules/system/layers/keycloak
 %{ovirt_engine_wildfly_data}/themes

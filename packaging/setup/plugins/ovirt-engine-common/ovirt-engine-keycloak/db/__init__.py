@@ -10,6 +10,7 @@
 from otopi import util
 
 
+from . import config
 from . import connection
 from . import engine_connection
 from . import pgpass
@@ -17,6 +18,7 @@ from . import pgpass
 
 @util.export
 def createPlugins(context):
+    config.Plugin(context=context)
     connection.Plugin(context=context)
     engine_connection.Plugin(context=context)
     pgpass.Plugin(context=context)

@@ -20,8 +20,10 @@ PACKAGE_NAME=ovirt-engine-keycloak
 
 PYTHON=$(shell which python3 2> /dev/null)
 PREFIX=/usr/local
+LOCALSTATE_DIR=$(PREFIX)/var
 DATAROOT_DIR=$(PREFIX)/share
 PKG_DATA_DIR=$(DATAROOT_DIR)/ovirt-engine-keycloak
+PKG_STATE_DIR=$(LOCALSTATE_DIR)/lib/ovirt-engine-keycloak
 KEYCLOAK_OVERLAY_ZIP="keycloak-overlay-$(KEYCLOAK_VERSION).zip"
 KEYCLOAK_OVERLAY_URL="https://github.com/keycloak/keycloak/releases/download/${KEYCLOAK_VERSION}/${KEYCLOAK_OVERLAY_ZIP}"
 #
@@ -42,6 +44,7 @@ BUILD_FILE=tmp.built
 	-e "s|@KEYCLOAK_OVERLAY_ZIP@|$(KEYCLOAK_OVERLAY_ZIP)|g" \
 	-e "s|@DATAROOT_DIR@|$(DATAROOT_DIR)|g" \
 	-e "s|@PKG_DATA_DIR@|$(PKG_DATA_DIR)|g" \
+	-e "s|@PKG_STATE_DIR@|$(PKG_STATE_DIR)|g" \
 	-e "s|@RPM_VERSION@|$(RPM_VERSION)|g" \
 	-e "s|@RPM_RELEASE@|$(RPM_RELEASE)|g" \
 	-e "s|@PACKAGE_NAME@|$(PACKAGE_NAME)|g" \
@@ -76,6 +79,7 @@ clean:
 install: \
 	all \
 	install-packaging-files \
+	install-layout \
 	$(NULL)
 
 .PHONY: ovirt-engine-keycloak.spec.in
@@ -142,3 +146,5 @@ install-packaging-files: \
 	$(MAKE) copy-recursive SOURCEDIR=packaging/setup TARGETDIR="$(DESTDIR)$(PKG_DATA_DIR)/../ovirt-engine/setup" EXCLUDE_GEN="$(GENERATED)"
 	$(MAKE) copy-recursive SOURCEDIR=packaging/conf TARGETDIR="$(DESTDIR)$(PKG_DATA_DIR)/conf" EXCLUDE_GEN="$(GENERATED)"
 
+install-layout:
+	install -dm 755 "$(DESTDIR)$(PKG_STATE_DIR)/backups" \
