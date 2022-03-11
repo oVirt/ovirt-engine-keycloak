@@ -34,8 +34,9 @@ DEK = oengcommcons.DBEnvKeysConst
 @util.export
 @util.codegen
 class Const(object):
+    OVIRT_ENGINE_KEYCLOAK_PACKAGE_NAME = 'ovirt-engine-keycloak'
     OVIRT_ENGINE_KEYCLOAK_SETUP_PACKAGE_NAME = \
-        'ovirt-engine-keycloak'
+        'ovirt-engine-keycloak-setup'
     KEYCLOAK_MASTER_REALM = 'master'
     KEYCLOAK_INTERNAL_REALM = 'ovirt-internal'
     OVIRT_ADMIN_USER = 'admin@ovirt'
@@ -369,6 +370,12 @@ class FileLocations(oesetupcons.FileLocations):
         'backups',
     )
 
+@util.export
+@util.codegen
+@osetupattrsclass
+class RPMDistroEnv(object):
+    PACKAGES = 'OVESETUP_KEYCLOAK_RPMDISTRO_PACKAGES'
+    PACKAGES_SETUP = 'OVESETUP_KEYCLOAK_RPMDISTRO_PACKAGES_SETUP'
 
 @util.export
 class Stages(object):
