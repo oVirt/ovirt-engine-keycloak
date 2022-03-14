@@ -457,5 +457,34 @@ class Plugin(plugin.PluginBase):
                                " Check setup log for details")
         return ''.join(out)
 
+    @plugin.event(
+        stage=plugin.Stages.STAGE_CLOSEUP,
+        before=(
+            osetupcons.Stages.DIALOG_TITLES_E_SUMMARY,
+        ),
+        after=(
+            osetupcons.Stages.DIALOG_TITLES_S_SUMMARY,
+        ),
+        condition=lambda self: (
+            self.environment[oenginecons.CoreEnv.ENABLE] and
+            self.environment[oenginecons.EngineDBEnv.NEW_DATABASE] and
+            not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE]
+        )
+    )
+    def _closeup(self):
+        self.dialog.note(
+            text=_(
+                "Please use the user '{keycloakadmin}' and password specified in "
+                "order to login to Keycloak admin console\n"
+                "Please use the user '{user}' and password specified in "
+                "order to login using Keycloak SSO"
+            ).format(
+                user=okkcons.Const.OVIRT_ADMIN_USER,
+                keycloakadmin=self.environment[
+                    oenginecons.ConfigEnv.ADMIN_USER
+                ].rsplit('@', 1)[0],
+            ),
+        )
+
 
 # vim: expandtab tabstop=4 shiftwidth=4
