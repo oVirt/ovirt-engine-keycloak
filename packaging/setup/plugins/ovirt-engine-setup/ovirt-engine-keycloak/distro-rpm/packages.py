@@ -56,6 +56,11 @@ class Plugin(plugin.PluginBase):
         ),
         before=(
             osetupcons.Stages.DISTRO_RPM_PACKAGE_UPDATE_CHECK,
+        ),
+        condition=lambda self: (
+            self.environment[oenginecons.CoreEnv.ENABLE] and
+            self.environment[oenginecons.EngineDBEnv.NEW_DATABASE] and
+            not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE]
         )
     )
     def _customization(self):

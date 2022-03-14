@@ -111,7 +111,10 @@ class Plugin(plugin.PluginBase):
         stage=plugin.Stages.STAGE_SETUP,
         name=okkcons.Stages.DB_CONNECTION_SETUP,
         condition=lambda self: (
-            self.environment[oenginecons.CoreEnv.ENABLE] and (
+            self.environment[oenginecons.EngineDBEnv.NEW_DATABASE] and
+            not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE] and
+            self.environment[oenginecons.CoreEnv.ENABLE] and
+            (
                 self.environment[osetupcons.CoreEnv.ACTION]
                 != osetupcons.Const.ACTION_PROVISIONDB
             )

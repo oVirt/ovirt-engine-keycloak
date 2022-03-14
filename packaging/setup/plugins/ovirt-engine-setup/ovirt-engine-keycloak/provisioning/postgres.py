@@ -56,29 +56,29 @@ class Plugin(plugin.PluginBase):
     @plugin.event(
         stage=plugin.Stages.STAGE_SETUP,
         after=(
-                okkcons.Stages.DB_CONNECTION_SETUP,
+            okkcons.Stages.DB_CONNECTION_SETUP,
         ),
         condition=lambda self: (
-                not self.environment[
-                    osetupcons.CoreEnv.DEVELOPER_MODE
-                ] and
-                self.environment[
-                    okkcons.DBEnv.NEW_DATABASE
-                ]
+            not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE] and
+            self.environment[okkcons.DBEnv.NEW_DATABASE]
         ),
     )
     def _setup(self):
         self._provisioning.detectCommands()
-
         self._enabled = self._provisioning.supported()
 
     @plugin.event(
         stage=plugin.Stages.STAGE_CUSTOMIZATION,
         name=okkcons.Stages.DB_PROVISIONING_CUSTOMIZATION,
         after=(
-                oengcommcons.Stages.DIALOG_TITLES_S_DATABASE,
+            oengcommcons.Stages.DIALOG_TITLES_S_DATABASE,
         ),
-        condition=lambda self: self._enabled,
+        condition=lambda self: (
+            self._enabled and
+            self.environment[oenginecons.EngineDBEnv.NEW_DATABASE] and
+            not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE]
+        )
+
     )
     def _customization(self):
         enabled = self.environment[
@@ -132,11 +132,12 @@ class Plugin(plugin.PluginBase):
     @plugin.event(
         stage=plugin.Stages.STAGE_CUSTOMIZATION,
         priority=plugin.Stages.PRIORITY_LAST,
-        condition=lambda self: self.environment[
-                                   oenginecons.CoreEnv.ENABLE
-                               ] and self.environment[
-                                   okkcons.DBEnv.HOST
-                               ] == 'localhost',
+        condition=lambda self: (
+            self.environment[oenginecons.CoreEnv.ENABLE] and
+            self.environment[okkcons.DBEnv.HOST] == 'localhost' and
+            self.environment[oenginecons.EngineDBEnv.NEW_DATABASE] and
+            not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE]
+        )
     )
     def _customization_firewall(self):
         self.environment[osetupcons.NetEnv.FIREWALLD_SERVICES].extend([
@@ -157,12 +158,16 @@ class Plugin(plugin.PluginBase):
         stage=plugin.Stages.STAGE_MISC,
         name=okkcons.Stages.DB_PROVISIONING_PROVISION,
         before=(
-                okkcons.Stages.DB_CREDENTIALS_AVAILABLE,
+            okkcons.Stages.DB_CREDENTIALS_AVAILABLE,
         ),
         after=(
-                osetupcons.Stages.SYSTEM_SYSCTL_CONFIG_AVAILABLE,
+            osetupcons.Stages.SYSTEM_SYSCTL_CONFIG_AVAILABLE,
         ),
-        condition=lambda self: self._enabled,
+        condition=lambda self: (
+            self._enabled and
+            self.environment[oenginecons.EngineDBEnv.NEW_DATABASE] and
+            not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE]
+        )
     )
     def _misc(self):
         self._provisioning.applyEnvironment()
@@ -171,12 +176,16 @@ class Plugin(plugin.PluginBase):
     @plugin.event(
         stage=plugin.Stages.STAGE_CLOSEUP,
         before=(
-                osetupcons.Stages.DIALOG_TITLES_E_SUMMARY,
+            osetupcons.Stages.DIALOG_TITLES_E_SUMMARY,
         ),
         after=(
-                osetupcons.Stages.DIALOG_TITLES_S_SUMMARY,
+            osetupcons.Stages.DIALOG_TITLES_S_SUMMARY,
         ),
-        condition=lambda self: self._provisioning.databaseRenamed,
+        condition=lambda self: (
+            self._provisioning.databaseRenamed and
+            self.environment[oenginecons.EngineDBEnv.NEW_DATABASE] and
+            not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE]
+        )
     )
     def _closeup(self):
         self.dialog.note(
