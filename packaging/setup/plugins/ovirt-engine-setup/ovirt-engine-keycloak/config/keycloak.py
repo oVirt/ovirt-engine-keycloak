@@ -51,6 +51,38 @@ class Plugin(plugin.PluginBase):
     def _setup(self):
         self.environment[oengcommcons.ConfigEnv.JAVA_NEEDED] = True
         self.environment[oengcommcons.ConfigEnv.JBOSS_NEEDED] = True
+        self.environment[oengcommcons.KeycloakEnv.KEYCLOAK_ENABLED] = True
+
+    @plugin.event(
+        stage=plugin.Stages.STAGE_CUSTOMIZATION,
+        before=(
+            oenginecons.Stages.OVN_PROVIDER_CREDENTIALS_CUSTOMIZATION,
+        ),
+        after=(
+            oengcommcons.Stages.ADMIN_PASSWORD_SET,
+        ),
+        condition=lambda self: (
+            self.environment[oenginecons.CoreEnv.ENABLE] and
+            self.environment[oenginecons.EngineDBEnv.NEW_DATABASE] and
+            not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE]
+        )
+    )
+    def _setup_keycloak_ovirt_admin_credentials(self):
+        password = self.environment.get(oenginecons.ConfigEnv.ADMIN_PASSWORD)
+        if password:
+            keycloak_ovn_admin = \
+                '{user}@{profile}'.format(
+                    user=okkcons.Const.OVIRT_ADMIN_USER,
+                    profile=okkcons.Const.OVIRT_ENGINE_KEYCLOAK_SSO_PROFILE,
+                )
+            self.environment[
+                oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_ADMIN_USER
+            ] = keycloak_ovn_admin
+
+            self.environment[
+                oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_ADMIN_PASSWD
+            ] = password
+
 
     @plugin.event(
         stage=plugin.Stages.STAGE_MISC,
