@@ -37,23 +37,7 @@ class Plugin(plugin.PluginBase):
         super(Plugin, self).__init__(context=context)
 
     @plugin.event(
-        stage=plugin.Stages.STAGE_INIT,
-    )
-    def _init(self):
-        self.environment.setdefault(
-            okkcons.RPMDistroEnv.PACKAGES,
-            okkcons.Const.OVIRT_ENGINE_KEYCLOAK_PACKAGE_NAME
-        )
-        self.environment.setdefault(
-            okkcons.RPMDistroEnv.PACKAGES_SETUP,
-            okkcons.Const.OVIRT_ENGINE_KEYCLOAK_SETUP_PACKAGE_NAME
-        )
-
-    @plugin.event(
         stage=plugin.Stages.STAGE_CUSTOMIZATION,
-        after=(
-            okkcons.Stages.CORE_ENABLE,
-        ),
         before=(
             osetupcons.Stages.DISTRO_RPM_PACKAGE_UPDATE_CHECK,
         ),

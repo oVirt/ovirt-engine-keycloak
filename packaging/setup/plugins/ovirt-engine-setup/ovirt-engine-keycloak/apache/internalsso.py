@@ -60,6 +60,8 @@ class Plugin(plugin.PluginBase):
                 name=self.environment[
                     okkcons.ApacheEnv.HTTPD_CONF_OVIRT_ENGINE_INTERNAL_SSO_OPENIDC
                 ],
+                mode=0o640,
+                enforcePermissions=True,
                 content=outil.processTemplate(
                     template=(
                         okkcons.FileLocations.HTTPD_CONF_OVIRT_ENGINE_INTERNAL_SSO_OPENIDC_TEMPLATE

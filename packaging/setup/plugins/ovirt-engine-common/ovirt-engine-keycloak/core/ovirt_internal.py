@@ -47,26 +47,28 @@ class Plugin(plugin.PluginBase):
     def _setup_ovirt(self):
         password = self.environment.get(oenginecons.ConfigEnv.ADMIN_PASSWORD)
         if password:
+            self.logger.info('Start with setting up Keycloak for Ovirt Engine')
+
             # TODO sometimes keycloak app is not ready soon enough  resulting
             # in 503 error on attempt to use kcadm.sh / api
             # This sleep is only a workaround until better way is found
             time.sleep(30)
-            self.logger.info('Start with setting up Keycloak for Ovirt Engine')
+
             self._setup_keystore()
 
-            self.logger.info(_('Logging in with Keycloak CLI admin'))
+            self.logger.debug(_('Logging in with Keycloak CLI admin'))
             self._login(
                 passwd=password
             )
 
-            self.logger.info('Creating realm in with Keycloak CLI admin')
+            self.logger.debug('Creating realm with Keycloak CLI admin')
             self._setup_realm()
 
             # please note that client_id is an id (hash) and
             # is not the human readable
             # 'client id' defined as
             # okkcons.Const.KEYCLOAK_INTERNAL_CLIENT_NAME
-            self.logger.info(
+            self.logger.debug(
                 'Creating internal client in with Keycloak CLI admin'
             )
             client_id = self._setup_client()
@@ -197,9 +199,9 @@ class Plugin(plugin.PluginBase):
                 '-s', 'rootUrl=https://{}'.format(engine_host),
                 '-s', 'adminUrl=https://{}'.format(engine_host),
                 '-s', 'baseUrl=https://{}'.format(engine_host),
-                '-s', """redirectUris=["https://{}*"]""".format(engine_host),
-                '-s', """webOrigins=["https://{}"]""".format(engine_host),
-                '-s', """attributes."access.token.lifespan"=17280""",
+                '-s', 'redirectUris=["https://{}*"]'.format(engine_host),
+                '-s', 'webOrigins=["https://{}"]'.format(engine_host),
+                '-s', 'attributes."access.token.lifespan"=17280',
             ),
         )
         return cid
@@ -251,12 +253,12 @@ class Plugin(plugin.PluginBase):
                     '-s', 'name=username',
                     '-s', 'protocol=openid-connect',
                     '-s', 'protocolMapper=oidc-usermodel-property-mapper',
-                    '-s', """config."id.token.claim"=\"true\"""",
-                    '-s', """config."access.token.claim"=\"true\"""",
-                    '-s', """config."userinfo.token.claim"=\"true\"""",
-                    '-s', """config."claim.name"=\"preferred_username\"""",
-                    '-s', """config."user.attribute"=\"username\"""",
-                    '-s', """config."jsonType.label"=\"String\"""",
+                    '-s', 'config."id.token.claim"="true"',
+                    '-s', 'config."access.token.claim"="true"',
+                    '-s', 'config."userinfo.token.claim"="true"',
+                    '-s', 'config."claim.name"="preferred_username"',
+                    '-s', 'config."user.attribute"="username"',
+                    '-s', 'config."jsonType.label"="String"',
                     '-i',
                 )
             )
@@ -275,11 +277,11 @@ class Plugin(plugin.PluginBase):
                     '-s', 'name=groups',
                     '-s', 'protocol=openid-connect',
                     '-s', 'protocolMapper=oidc-group-membership-mapper',
-                    '-s', """config."id.token.claim"=\"true\"""",
-                    '-s', """config."access.token.claim"=\"true\"""",
-                    '-s', """config."userinfo.token.claim"=\"true\"""",
-                    '-s', """config."claim.name"=\"groups\"""",
-                    '-s', """config."full.path"=\"true\"""",
+                    '-s', 'config."id.token.claim"="true"',
+                    '-s', 'config."access.token.claim"="true"',
+                    '-s', 'config."userinfo.token.claim"="true"',
+                    '-s', 'config."claim.name"="groups"',
+                    '-s', 'config."full.path"="true"',
                     '-i',
                 )
             )

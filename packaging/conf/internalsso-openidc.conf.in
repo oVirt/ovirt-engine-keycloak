@@ -1,46 +1,58 @@
-LoadModule auth_openidc_module modules/mod_auth_openidc.so
+<IfModule !auth_openidc_module>
+    LoadModule auth_openidc_module modules/mod_auth_openidc.so
+</IfModule>
 
-# must point to your keycloak server
-OIDCProviderMetadataURL https://@ENGINE_FQDN@/@KEYCLOAK_WEB_CONTEXT@/realms/@OVIRT_REALM@/.well-known/openid-configuration
-OIDCSSLValidateServer Off
+<IfModule auth_openidc_module>
+    # must point to your keycloak server
+    OIDCProviderMetadataURL https://@ENGINE_FQDN@/@KEYCLOAK_WEB_CONTEXT@/realms/@OVIRT_REALM@/.well-known/openid-configuration
 
-# client id defined in Keycloak UI, other custom names are allowed
-OIDCClientID @CLIENT_ID@
+    # TODO check what it takes to enable SSL validation below. Currently, when enabled, 'Internal Server Error' is shown
+    OIDCSSLValidateServer Off
 
-# client secret generated for the above CLIENT_ID from keycloak
-OIDCClientSecret @CLIENT_SECRET@
+    # client id defined in Keycloak UI, other custom names are allowed
+    OIDCClientID @CLIENT_ID@
 
-# must point to your engine's
-OIDCRedirectURI https://@ENGINE_FQDN@/ovirt-engine/callback
-OIDCDefaultURL https://@ENGINE_FQDN@/ovirt-engine/login?scope=ovirt-app-admin+ovirt-app-portal+ovirt-ext%3Dauth%3Asequence-priority%3D%7E
+    # client secret generated for the above CLIENT_ID from keycloak
+    OIDCClientSecret @CLIENT_SECRET@
 
-# maps the preferred_username claim to the REMOTE_USER environment variable
-OIDCRemoteUserClaim preferred_username
-OIDCCryptoPassphrase @RANDOM_CRYPTO_PASSPHRASE@
+    # must point to your engine's
+    OIDCRedirectURI https://@ENGINE_FQDN@/ovirt-engine/callback
+    OIDCDefaultURL https://@ENGINE_FQDN@/ovirt-engine/login?scope=ovirt-app-admin+ovirt-app-portal+ovirt-ext%3Dauth%3Asequence-priority%3D%7E
 
-<LocationMatch ^/ovirt-engine/sso/(interactive-login-negotiate|oauth/token-http-auth)|^/ovirt-engine/callback>
-    <If "req('Authorization') !~ /^(Bearer|Basic)/i">
+    # The claim that is used when setting the REMOTE_USER variable on OAuth 2.0 protected paths.
+    # When not defined the default "sub" is used.
+    #
+    # See also:
+    #   https://github.com/zmartzone/mod_auth_openidc/blob/8e7284f6af6daa3e12578e7304eac96fc4b516af/auth_openidc.conf#L449
+    #
+    OIDCRemoteUserClaim preferred_username
+    OIDCCryptoPassphrase @RANDOM_CRYPTO_PASSPHRASE@
 
-      Require valid-user
-      AuthType openid-connect
+    <LocationMatch ^/ovirt-engine/sso/(interactive-login-negotiate|oauth/token-http-auth)|^/ovirt-engine/callback>
+        <If "req('Authorization') !~ /^(Bearer|Basic)/i">
 
-      ErrorDocument 401 "<html><meta http-equiv=\"refresh\" content=\"0; url=/ovirt-engine/sso/login-unauthorized\"/><body><a href=\"/ovirt-engine/sso/login-unauthorized\">Here</a></body></html>"
-    </If>
-</LocationMatch>
+          Require valid-user
+          AuthType openid-connect
 
-OIDCOAuthIntrospectionEndpoint https://@ENGINE_FQDN@/@KEYCLOAK_WEB_CONTEXT@/realms/@OVIRT_REALM@/protocol/openid-connect/token/introspect
-OIDCOAuthSSLValidateServer    Off
-OIDCOAuthIntrospectionEndpointParams token_type_hint=access_token
+          ErrorDocument 401 "<html><meta http-equiv=\"refresh\" content=\"0; url=/ovirt-engine/sso/login-unauthorized\"/><body><a href=\"/ovirt-engine/sso/login-unauthorized\">Here</a></body></html>"
+        </If>
+    </LocationMatch>
 
-# client id defined in Keycloak UI, other custom names are allowed
-OIDCOAuthClientID @CLIENT_ID@
+    OIDCOAuthIntrospectionEndpoint https://@ENGINE_FQDN@/@KEYCLOAK_WEB_CONTEXT@/realms/@OVIRT_REALM@/protocol/openid-connect/token/introspect
+    # TODO check what it takes to enable SSL validation below. Currently, when enabled, 'Internal Server Error' is shown
+    OIDCOAuthSSLValidateServer    Off
+    OIDCOAuthIntrospectionEndpointParams token_type_hint=access_token
 
-# client secret generated for the above CLIENT_ID from keycloak
-OIDCOAuthClientSecret @CLIENT_SECRET@
+    # client id defined in Keycloak UI, other custom names are allowed
+    OIDCOAuthClientID @CLIENT_ID@
 
-OIDCOAuthRemoteUserClaim sub
+    # client secret generated for the above CLIENT_ID from keycloak
+    OIDCOAuthClientSecret @CLIENT_SECRET@
 
-<LocationMatch ^/ovirt-engine/api($|/)>
-   AuthType oauth20
-   Require valid-user
-</LocationMatch>
+    OIDCOAuthRemoteUserClaim sub
+
+    <LocationMatch ^/ovirt-engine/api($|/)>
+       AuthType oauth20
+       Require valid-user
+    </LocationMatch>
+</IfModule>

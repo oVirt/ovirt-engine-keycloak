@@ -167,8 +167,8 @@ class Plugin(plugin.PluginBase):
                     exc_info=True,
                 )
                 msg = _(
-                    'Cannot connect to Keycloak database using existing '
-                    'credentials: {user}@{host}:{port}'
+                    "Cannot connect to Keycloak database '{database}' using existing "
+                    "credentials: {user}@{host}:{port}"
                 ).format(
                     host=dbenv[okkcons.DBEnv.HOST],
                     port=dbenv[okkcons.DBEnv.PORT],

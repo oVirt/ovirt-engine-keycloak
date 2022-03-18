@@ -35,9 +35,9 @@ Source:		%{name}-@RPM_VERSION@.tar.gz
 
 BuildRequires:	unzip
 
-Requires:	%{name}-setup
-Requires:	mod_auth_openidc
-Requires:	ovirt-engine-extension-aaa-misc
+Requires:	%{name}-setup >= %{version}
+Requires:	mod_auth_openidc >= 2.3.7
+Requires:	ovirt-engine-extension-aaa-misc >= 1.1.1
 
 %description
 Keycloak SSO for oVirt Engine.

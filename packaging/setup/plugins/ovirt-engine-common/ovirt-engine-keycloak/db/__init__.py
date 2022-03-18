@@ -20,7 +20,8 @@ from . import pgpass
 def createPlugins(context):
     config.Plugin(context=context)
     connection.Plugin(context=context)
-    engine_connection.Plugin(context=context)
+    # TODO engine_connection plugin will used for user migration
+    # engine_connection.Plugin(context=context)
     pgpass.Plugin(context=context)
 
 # vim: expandtab tabstop=4 shiftwidth=4

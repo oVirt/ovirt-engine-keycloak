@@ -37,14 +37,27 @@ class Plugin(plugin.PluginBase):
         stage=plugin.Stages.STAGE_MISC,
         condition=lambda self: (
             self.environment[oenginecons.CoreEnv.ENABLE] and
+            not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE] and
+            # TODO change condition to handle upgrades
+            # (..) when/if we decide to automate it,
+            # currently only new installations are supported
             self.environment[oenginecons.EngineDBEnv.NEW_DATABASE]
         ),
     )
     def _create_admin(self):
         password = self.environment.get(oenginecons.ConfigEnv.ADMIN_PASSWORD)
-        if password:
-            self.logger.info(_('Creating initial Keycloak admin user'))
-            self._backup_existing_add_user_json_file()
+        if password is None:
+            # TODO allow custom passwords (different from 'admin' user)
+            self.logger.info(_('Creating initial Keycloak admin user '
+                               'with admin password'))
+            # TODO consider using transaction
+            #  ie. be implementing transaction.TransactionElement
+            # current implementation is idempotent because in the line below
+            # already existing json configuration files are renamed with
+            # proper datetime based suffix make place for newly created
+            # add user config file
+            self._safely_keep_existing_user_json_file()
+            # TODO handle upgrade
             self.execute(
                 (
                     okkcons.FileLocations.KEYCLOAK_ADD_USER_SCRIPT,
@@ -65,16 +78,30 @@ class Plugin(plugin.PluginBase):
                     self.environment[osetupcons.SystemEnv.GROUP_ENGINE],
                 ),
             )
-            os.chmod(okkcons.FileLocations.KEYCLOAK_ADD_INITIAL_ADMIN_FILE, 0o600)
+            os.chmod(
+                okkcons.FileLocations.KEYCLOAK_ADD_INITIAL_ADMIN_FILE,
+                0o600
+            )
             self.environment[oengcommcons.ApacheEnv.NEED_RESTART] = True
+        else:
+            self.logger.info(_('Not creating initial Keycloak admin user '
+                               'because admin password is missing'))
 
     @staticmethod
-    def _backup_existing_add_user_json_file():
-        if os.path.exists(okkcons.FileLocations.KEYCLOAK_ADD_INITIAL_ADMIN_FILE):
+    def _safely_keep_existing_user_json_file():
+        if os.path.exists(
+            okkcons.FileLocations.KEYCLOAK_ADD_INITIAL_ADMIN_FILE
+        ):
             now = datetime.datetime.now()
             timestamp = str(now.strftime("%Y%m%d_%H-%M-%S"))
-            backup_file = ".".join([okkcons.FileLocations.KEYCLOAK_ADD_INITIAL_ADMIN_FILE, timestamp])
-            os.renames(okkcons.FileLocations.KEYCLOAK_ADD_INITIAL_ADMIN_FILE, backup_file)
+            backup_file = ".".join([
+                okkcons.FileLocations.KEYCLOAK_ADD_INITIAL_ADMIN_FILE,
+                timestamp
+            ])
+            os.renames(
+                okkcons.FileLocations.KEYCLOAK_ADD_INITIAL_ADMIN_FILE,
+                backup_file
+            )
 
 
 # vim: expandtab tabstop=4 shiftwidth=4
