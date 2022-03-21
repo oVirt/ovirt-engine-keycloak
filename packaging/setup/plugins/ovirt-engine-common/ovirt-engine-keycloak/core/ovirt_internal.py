@@ -115,7 +115,7 @@ class Plugin(plugin.PluginBase):
         )
 
         self.execute(
-            (
+            args=(
                 okkcons.FileLocations.KEYCLOAK_CLI_ADMIN_SCRIPT,
                 'config',
                 'credentials',
@@ -124,8 +124,8 @@ class Plugin(plugin.PluginBase):
                 '--user', self.environment[
                     oenginecons.ConfigEnv.ADMIN_USER
                 ].rsplit('@', 1)[0],
-                '--password', passwd,
             ),
+            stdin=[passwd, ''],
         )
 
     def _setup_realm(self):
@@ -324,13 +324,13 @@ class Plugin(plugin.PluginBase):
 
         # set admin password
         self.execute(
-            (
+            args=(
                 okkcons.FileLocations.KEYCLOAK_CLI_ADMIN_SCRIPT,
                 'set-password',
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                 '--username', okkcons.Const.OVIRT_ADMIN_USER,
-                '--new-password', password,
-            )
+            ),
+            stdin=[password, '']
         )
 
         # assign admin to ovirt-administrator group

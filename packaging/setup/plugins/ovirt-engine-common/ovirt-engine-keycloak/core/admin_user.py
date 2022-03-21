@@ -59,15 +59,15 @@ class Plugin(plugin.PluginBase):
             self._safely_keep_existing_user_json_file()
             # TODO handle upgrade
             self.execute(
-                (
+                args=(
                     okkcons.FileLocations.KEYCLOAK_ADD_USER_SCRIPT,
                     '-r', okkcons.Const.KEYCLOAK_MASTER_REALM,
                     '-u', self.environment[
                         oenginecons.ConfigEnv.ADMIN_USER
                     ].rsplit('@', 1)[0],
-                    '-p', password,
                     '--sc', okkcons.FileLocations.OVIRT_ENGINE_CONFIG_DIR,
                 ),
+                stdin=[password, ''],
             )
             os.chown(
                 okkcons.FileLocations.KEYCLOAK_ADD_INITIAL_ADMIN_FILE,
