@@ -34,6 +34,19 @@ class Plugin(plugin.PluginBase):
         super(Plugin, self).__init__(context=context)
 
     @plugin.event(
+        stage=plugin.Stages.STAGE_SETUP,
+    )
+    def _setup(self):
+        self.environment.setdefault(
+            okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT,
+            os.path.join(
+                self.environment[oengcommcons.ConfigEnv.JBOSS_HOME],
+                "bin",
+                okkcons.Const.KEYCLOAK_CLI_ADMIN_SCRIPT,
+            ),
+        )
+
+    @plugin.event(
         stage=plugin.Stages.STAGE_CLOSEUP,
         after=(
             oengcommcons.Stages.CORE_ENGINE_START,
@@ -96,7 +109,9 @@ class Plugin(plugin.PluginBase):
     def _setup_keystore(self):
         self.execute(
             (
-                okkcons.FileLocations.KEYCLOAK_CLI_ADMIN_SCRIPT,
+                self.environment[
+                    okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                ],
                 'config',
                 'truststore',
                 '--trustpass', oenginecons.Const.PKI_PASSWORD,
@@ -116,7 +131,9 @@ class Plugin(plugin.PluginBase):
 
         self.execute(
             args=(
-                okkcons.FileLocations.KEYCLOAK_CLI_ADMIN_SCRIPT,
+                self.environment[
+                    okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                ],
                 'config',
                 'credentials',
                 '--server', 'https://{}'.format(keycloak_server_url),
@@ -136,7 +153,9 @@ class Plugin(plugin.PluginBase):
         if realm_id is None:
             rc, stdout, stderr = self.execute(
                 (
-                    okkcons.FileLocations.KEYCLOAK_CLI_ADMIN_SCRIPT,
+                    self.environment[
+                        okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                    ],
                     'create',
                     'realms',
                     '-s', 'realm=%s' % okkcons.Const.KEYCLOAK_INTERNAL_REALM,
@@ -148,7 +167,9 @@ class Plugin(plugin.PluginBase):
         else:
             self.execute(
                 (
-                    okkcons.FileLocations.KEYCLOAK_CLI_ADMIN_SCRIPT,
+                    self.environment[
+                        okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                    ],
                     'update',
                     'realms/%s' % okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                     '-s', 'enabled=true',
@@ -164,7 +185,9 @@ class Plugin(plugin.PluginBase):
         if cid is None:
             rc, stdout, stderr = self.execute(
                 (
-                    okkcons.FileLocations.KEYCLOAK_CLI_ADMIN_SCRIPT,
+                    self.environment[
+                        okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                    ],
                     'create',
                     'clients',
                     '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
@@ -191,7 +214,9 @@ class Plugin(plugin.PluginBase):
         ]
         self.execute(
             (
-                okkcons.FileLocations.KEYCLOAK_CLI_ADMIN_SCRIPT,
+                self.environment[
+                    okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                ],
                 'update',
                 'clients/{}'.format(cid),
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
@@ -214,7 +239,9 @@ class Plugin(plugin.PluginBase):
         if client_scope_id is None:
             rc, stdout, stderr = self.execute(
                 (
-                    okkcons.FileLocations.KEYCLOAK_CLI_ADMIN_SCRIPT,
+                    self.environment[
+                        okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                    ],
                     'create',
                     'client-scopes',
                     '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
@@ -227,7 +254,9 @@ class Plugin(plugin.PluginBase):
 
         self.execute(
             (
-                okkcons.FileLocations.KEYCLOAK_CLI_ADMIN_SCRIPT,
+                self.environment[
+                    okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                ],
                 'update',
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                 "clients/{client_id}/optional-client-scopes/{client_scope_id}"
@@ -246,7 +275,9 @@ class Plugin(plugin.PluginBase):
         ) is None:
             self.execute(
                 (
-                    okkcons.FileLocations.KEYCLOAK_CLI_ADMIN_SCRIPT,
+                    self.environment[
+                        okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                    ],
                     'create',
                     'clients/{}/protocol-mappers/models'.format(client_id),
                     '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
@@ -270,7 +301,9 @@ class Plugin(plugin.PluginBase):
         ) is None:
             self.execute(
                 (
-                    okkcons.FileLocations.KEYCLOAK_CLI_ADMIN_SCRIPT,
+                    self.environment[
+                        okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                    ],
                     'create',
                     'clients/{}/protocol-mappers/models'.format(client_id),
                     '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
@@ -293,7 +326,9 @@ class Plugin(plugin.PluginBase):
         if group_id is None:
             rc, stdout, stderr = self.execute(
                 (
-                    okkcons.FileLocations.KEYCLOAK_CLI_ADMIN_SCRIPT,
+                    self.environment[
+                        okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                    ],
                     'create',
                     'groups',
                     '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
@@ -311,7 +346,9 @@ class Plugin(plugin.PluginBase):
         if admin_user_id is None:
             rc, stdout, stderr = self.execute(
                 (
-                    okkcons.FileLocations.KEYCLOAK_CLI_ADMIN_SCRIPT,
+                    self.environment[
+                        okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                    ],
                     'create',
                     'users',
                     '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
@@ -325,7 +362,9 @@ class Plugin(plugin.PluginBase):
         # set admin password
         self.execute(
             args=(
-                okkcons.FileLocations.KEYCLOAK_CLI_ADMIN_SCRIPT,
+                self.environment[
+                    okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                ],
                 'set-password',
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                 '--username', okkcons.Const.OVIRT_ADMIN_USER,
@@ -336,7 +375,9 @@ class Plugin(plugin.PluginBase):
         # assign admin to ovirt-administrator group
         self.execute(
             (
-                okkcons.FileLocations.KEYCLOAK_CLI_ADMIN_SCRIPT,
+                self.environment[
+                    okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                ],
                 'update',
                 'users/{user_id}/groups/{group_id}'.format(
                     user_id=admin_user_id,
@@ -353,7 +394,9 @@ class Plugin(plugin.PluginBase):
     def _get_user_id(self, username):
         rc, stdout, stderr = self.execute(
             (
-                okkcons.FileLocations.KEYCLOAK_CLI_ADMIN_SCRIPT,
+                self.environment[
+                    okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                ],
                 'get',
                 'users',
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
@@ -368,7 +411,9 @@ class Plugin(plugin.PluginBase):
     def _get_client_id(self, client_id_name):
         rc, stdout, stderr = self.execute(
             (
-                okkcons.FileLocations.KEYCLOAK_CLI_ADMIN_SCRIPT,
+                self.environment[
+                    okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                ],
                 'get',
                 'clients',
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
@@ -384,7 +429,9 @@ class Plugin(plugin.PluginBase):
     def _get_realm_id(self, realm_name):
         rc, stdout, stderr = self.execute(
             (
-                okkcons.FileLocations.KEYCLOAK_CLI_ADMIN_SCRIPT,
+                self.environment[
+                    okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                ],
                 'get',
                 'realms',
                 '--fields', 'id,realm',
@@ -399,7 +446,9 @@ class Plugin(plugin.PluginBase):
     def _get_client_scope_id(self, scope_name):
         rc, stdout, stderr = self.execute(
             (
-                okkcons.FileLocations.KEYCLOAK_CLI_ADMIN_SCRIPT,
+                self.environment[
+                    okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                ],
                 'get',
                 'client-scopes',
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
@@ -415,7 +464,9 @@ class Plugin(plugin.PluginBase):
     def _get_protocol_mapper_id(self, protocol_mapper_name, client_id):
         rc, stdout, stderr = self.execute(
             (
-                okkcons.FileLocations.KEYCLOAK_CLI_ADMIN_SCRIPT,
+                self.environment[
+                    okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                ],
                 'get',
                 'clients/{}/protocol-mappers/models'.format(client_id),
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
@@ -431,7 +482,9 @@ class Plugin(plugin.PluginBase):
     def _get_group_id(self, group_name):
         rc, stdout, stderr = self.execute(
             (
-                okkcons.FileLocations.KEYCLOAK_CLI_ADMIN_SCRIPT,
+                self.environment[
+                    okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                ],
                 'get',
                 'groups',
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,

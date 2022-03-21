@@ -57,6 +57,8 @@ class Const(object):
     OVIRT_ENGINE_KEYCLOAK_SSO_EXTENSION_NAME = 'internalkeycloak'
     OVIRT_ENGINE_KEYCLOAK_SSO_PROFILE = 'internalsso'
     OVIRT_ENGINE_KEYCLOAK_DB_BACKUP_PREFIX = 'keycloak'
+    KEYCLOAK_ADD_USER_SCRIPT = 'add-user-keycloak.sh'
+    KEYCLOAK_CLI_ADMIN_SCRIPT = 'kcadm.sh'
 
     @classproperty
     def KEYCLOAK_DB_ENV_KEYS(self):
@@ -131,6 +133,9 @@ class ConfigEnv(object):
     )
     def OVIRT_ENGINE_KEYCLOAK_DB_BACKUP_DIR(self):
         return 'OVESETUP_KEYCLOAK_CONFIG/keycloakDbBackupDir'
+
+    KEYCLOAK_ADD_USER_SCRIPT = 'OVESETUP_KEYCLOAK_CONFIG/addUserKeycloakScript'
+    KEYCLOAK_CLI_ADMIN_SCRIPT = 'OVESETUP_KEYCLOAK_CONFIG/kcadmScript'
 
 
 
@@ -308,18 +313,6 @@ class FileLocations(oesetupcons.FileLocations):
         oenginecons.FileLocations.OVIRT_ENGINE_EXTENSIONS_DIR,
         f'{Const.OVIRT_ENGINE_KEYCLOAK_SSO_EXTENSION_NAME}'
         '-http-mapping.properties'
-    )
-
-    KEYCLOAK_ADD_USER_SCRIPT = os.path.join(
-        oesetupcommconfig.JBOSS_HOME,
-        "bin",
-        "add-user-keycloak.sh",
-    )
-
-    KEYCLOAK_CLI_ADMIN_SCRIPT = os.path.join(
-        oesetupcommconfig.JBOSS_HOME,
-        "bin",
-        "kcadm.sh",
     )
 
     OVIRT_ENGINE_CONFIG_DIR = os.path.join(

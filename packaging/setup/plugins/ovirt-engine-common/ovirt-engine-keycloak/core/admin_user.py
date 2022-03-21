@@ -34,6 +34,19 @@ class Plugin(plugin.PluginBase):
         super(Plugin, self).__init__(context=context)
 
     @plugin.event(
+        stage=plugin.Stages.STAGE_SETUP,
+    )
+    def _setup(self):
+        self.environment.setdefault(
+            okkcons.ConfigEnv.KEYCLOAK_ADD_USER_SCRIPT,
+            os.path.join(
+                self.environment[oengcommcons.ConfigEnv.JBOSS_HOME],
+                "bin",
+                okkcons.Const.KEYCLOAK_ADD_USER_SCRIPT,
+            ),
+        )
+
+    @plugin.event(
         stage=plugin.Stages.STAGE_MISC,
         condition=lambda self: (
             self.environment[oenginecons.CoreEnv.ENABLE] and
@@ -60,7 +73,9 @@ class Plugin(plugin.PluginBase):
             # TODO handle upgrade
             self.execute(
                 args=(
-                    okkcons.FileLocations.KEYCLOAK_ADD_USER_SCRIPT,
+                    self.environment[
+                        okkcons.ConfigEnv.KEYCLOAK_ADD_USER_SCRIPT
+                    ],
                     '-r', okkcons.Const.KEYCLOAK_MASTER_REALM,
                     '-u', self.environment[
                         oenginecons.ConfigEnv.ADMIN_USER
