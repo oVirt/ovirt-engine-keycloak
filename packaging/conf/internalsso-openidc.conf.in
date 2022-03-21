@@ -26,7 +26,7 @@
     #   https://github.com/zmartzone/mod_auth_openidc/blob/8e7284f6af6daa3e12578e7304eac96fc4b516af/auth_openidc.conf#L449
     #
     OIDCRemoteUserClaim preferred_username
-    OIDCCryptoPassphrase @RANDOM_CRYPTO_PASSPHRASE@
+    OIDCCryptoPassphrase "exec:/bin/bash -c \"head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32\""
 
     <LocationMatch ^/ovirt-engine/sso/(interactive-login-negotiate|oauth/token-http-auth)|^/ovirt-engine/callback>
         <If "req('Authorization') !~ /^(Bearer|Basic)/i">

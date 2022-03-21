@@ -9,7 +9,6 @@
 """keycloak httpd internal sso openidc config plugin."""
 
 import gettext
-import secrets
 
 from otopi import constants as otopicons
 from otopi import filetransaction
@@ -79,8 +78,6 @@ class Plugin(plugin.PluginBase):
                         ],
                         '@KEYCLOAK_WEB_CONTEXT@':
                             okkcons.Const.KEYCLOAK_WEB_CONTEXT,
-                        '@RANDOM_CRYPTO_PASSPHRASE@':
-                            secrets.token_urlsafe(nbytes=16),
                     },
                 ),
                 modifiedList=self.environment[
