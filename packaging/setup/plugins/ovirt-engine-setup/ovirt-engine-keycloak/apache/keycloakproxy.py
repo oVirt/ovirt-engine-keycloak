@@ -44,12 +44,19 @@ class Plugin(plugin.PluginBase):
     @plugin.event(
         stage=plugin.Stages.STAGE_MISC,
         condition=lambda self: (
-            self.environment[oenginecons.CoreEnv.ENABLE] and
-            self.environment[oenginecons.EngineDBEnv.NEW_DATABASE] and
-            not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE]
+            self.environment[okkcons.CoreEnv.ENABLE] and
+            self.environment[okkcons.DBEnv.NEW_DATABASE]
         )
     )
     def _httpd_keycloak_misc(self):
+        uninstall_files = []
+        self.environment[
+            osetupcons.CoreEnv.REGISTER_UNINSTALL_GROUPS
+        ].addFiles(
+            group='ovirt_keycloak_files',
+            fileList=uninstall_files,
+        )
+
         self.environment[oengcommcons.ApacheEnv.NEED_RESTART] = True
         self.environment[otopicons.CoreEnv.MAIN_TRANSACTION].append(
             filetransaction.FileTransaction(
@@ -66,9 +73,7 @@ class Plugin(plugin.PluginBase):
                         ],
                     },
                 ),
-                modifiedList=self.environment[
-                    otopicons.CoreEnv.MODIFIED_FILES
-                ],
+                modifiedList=uninstall_files,
             )
         )
 

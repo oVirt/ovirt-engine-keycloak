@@ -48,21 +48,18 @@ class Plugin(plugin.PluginBase):
 
     @plugin.event(
         stage=plugin.Stages.STAGE_MISC,
+        after=(
+            okkcons.Stages.KEYCLOAK_CREDENTIALS_SETUP,
+        ),
         condition=lambda self: (
-            self.environment[oenginecons.CoreEnv.ENABLE] and
-            not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE] and
-            # TODO change condition to handle upgrades
-            # (..) when/if we decide to automate it,
-            # currently only new installations are supported
-            self.environment[oenginecons.EngineDBEnv.NEW_DATABASE]
+            self.environment[okkcons.CoreEnv.ENABLE] and
+            self.environment[okkcons.DBEnv.NEW_DATABASE]
         ),
     )
     def _create_admin(self):
-        password = self.environment.get(oenginecons.ConfigEnv.ADMIN_PASSWORD)
-        if password is None:
-            # TODO allow custom passwords (different from 'admin' user)
-            self.logger.info(_('Creating initial Keycloak admin user '
-                               'with admin password'))
+        password = self.environment[okkcons.ConfigEnv.ADMIN_PASSWORD]
+        if password is not None:
+            self.logger.info(_('Creating initial Keycloak admin user'))
             # TODO consider using transaction
             #  ie. be implementing transaction.TransactionElement
             # current implementation is idempotent because in the line below
@@ -81,8 +78,8 @@ class Plugin(plugin.PluginBase):
                         oenginecons.ConfigEnv.ADMIN_USER
                     ].rsplit('@', 1)[0],
                     '--sc', okkcons.FileLocations.OVIRT_ENGINE_CONFIG_DIR,
-                ),
-                stdin=[password, ''],
+                    '-p', password,
+                )
             )
             os.chown(
                 okkcons.FileLocations.KEYCLOAK_ADD_INITIAL_ADMIN_FILE,

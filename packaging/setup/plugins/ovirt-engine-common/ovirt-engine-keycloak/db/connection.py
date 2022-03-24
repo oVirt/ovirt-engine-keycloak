@@ -98,7 +98,16 @@ class Plugin(plugin.PluginBase):
         self.environment[okkcons.DBEnv.NEED_DBMSUPGRADE] = False
 
     @plugin.event(
-        stage=plugin.Stages.STAGE_SETUP,
+        stage=plugin.Stages.STAGE_CUSTOMIZATION,
+        after=(
+            okkcons.Stages.CORE_ENABLE,
+        ),
+        before=(
+            okkcons.Stages.DB_CONNECTION_SETUP,
+        ),
+        condition=lambda self: (
+            self.environment[okkcons.CoreEnv.ENABLE]
+        ),
     )
     def _commands(self):
         dbovirtutils = database.OvirtUtils(
@@ -108,19 +117,20 @@ class Plugin(plugin.PluginBase):
         dbovirtutils.detectCommands()
 
     @plugin.event(
-        stage=plugin.Stages.STAGE_SETUP,
+        stage=plugin.Stages.STAGE_CUSTOMIZATION,
         name=okkcons.Stages.DB_CONNECTION_SETUP,
+        after=(
+            okkcons.Stages.CORE_ENABLE,
+        ),
         condition=lambda self: (
-            self.environment[oenginecons.EngineDBEnv.NEW_DATABASE] and
-            not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE] and
-            self.environment[oenginecons.CoreEnv.ENABLE] and
+            self.environment[okkcons.CoreEnv.ENABLE] and
             (
                 self.environment[osetupcons.CoreEnv.ACTION]
                 != osetupcons.Const.ACTION_PROVISIONDB
             )
         ),
     )
-    def _setup(self):
+    def _setup_connection(self):
         config = configfile.ConfigFile([
             okkcons.FileLocations.OVIRT_ENGINE_SERVICE_CONFIG_KEYCLOAK,
         ])

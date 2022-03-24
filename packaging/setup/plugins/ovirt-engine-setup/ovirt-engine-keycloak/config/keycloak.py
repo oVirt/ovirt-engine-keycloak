@@ -9,7 +9,6 @@
 
 """keycloak plugin."""
 
-
 import gettext
 import secrets
 
@@ -23,7 +22,7 @@ from ovirt_engine_setup.engine import constants as oenginecons
 from ovirt_engine_setup.engine_common import constants as oengcommcons
 from ovirt_engine_setup.engine_common import database
 from ovirt_engine_setup.keycloak import constants as okkcons
-
+from ovirt_setup_lib import dialog
 
 def _(m):
     return gettext.dgettext(message=m, domain='ovirt-engine-setup')
@@ -44,45 +43,99 @@ class Plugin(plugin.PluginBase):
             okkcons.ConfigEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET,
             None
         )
-
-    @plugin.event(
-        stage=plugin.Stages.STAGE_SETUP,
-    )
-    def _setup(self):
-        self.environment[oengcommcons.ConfigEnv.JAVA_NEEDED] = True
-        self.environment[oengcommcons.ConfigEnv.JBOSS_NEEDED] = True
-        self.environment[oengcommcons.KeycloakEnv.KEYCLOAK_ENABLED] = True
+        self.environment.setdefault(
+            okkcons.ConfigEnv.ADMIN_PASSWORD,
+            None
+        )
 
     @plugin.event(
         stage=plugin.Stages.STAGE_CUSTOMIZATION,
+        name=okkcons.Stages.KEYCLOAK_CREDENTIALS_SETUP,
         before=(
             oenginecons.Stages.OVN_PROVIDER_CREDENTIALS_CUSTOMIZATION,
         ),
         after=(
             oengcommcons.Stages.ADMIN_PASSWORD_SET,
+            #okkcons.Stages.DB_CONNECTION_SETUP,
         ),
         condition=lambda self: (
-            self.environment[oenginecons.CoreEnv.ENABLE] and
-            self.environment[oenginecons.EngineDBEnv.NEW_DATABASE] and
-            not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE]
+            self.environment[okkcons.CoreEnv.ENABLE] and
+            self.environment[okkcons.ConfigEnv.ADMIN_PASSWORD] is None
         )
     )
     def _setup_keycloak_ovirt_admin_credentials(self):
-        password = self.environment.get(oenginecons.ConfigEnv.ADMIN_PASSWORD)
-        if password:
-            keycloak_ovn_admin = \
-                '{user}@{profile}'.format(
-                    user=okkcons.Const.OVIRT_ADMIN_USER,
-                    profile=okkcons.Const.OVIRT_ENGINE_KEYCLOAK_SSO_PROFILE,
-                )
-            self.environment[
-                oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_ADMIN_USER
-            ] = keycloak_ovn_admin
+        password = None
+        if self.environment[oenginecons.ConfigEnv.ADMIN_PASSWORD] is not None:
+            use_engine_admin_password = dialog.queryBoolean(
+                dialog=self.dialog,
+                name='KEYCLOAK_USE_ENGINE_ADMIN_PASSWORD',
+                note=_(
+                    f"Use Engine admin password as initial "
+                    f"keycloak admin [admin] "
+                    f"and [{okkcons.Const.OVIRT_ADMIN_USER}] "
+                    f"administration panel user password "
+                    f"(@VALUES@) [@DEFAULT@]: "
+                ),
+                prompt=True,
+                default=True
+            )
+            if use_engine_admin_password:
+                password = self.environment[
+                    oenginecons.ConfigEnv.ADMIN_PASSWORD
+                ]
 
-            self.environment[
-                oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_ADMIN_PASSWD
-            ] = password
+        if password is None:
+            password = dialog.queryPassword(
+                dialog=self.dialog,
+                logger=self.logger,
+                env=self.environment,
+                key=okkcons.ConfigEnv.ADMIN_PASSWORD,
+                note=_(
+                    f'Keycloak [admin] '
+                    f'and [{okkcons.Const.OVIRT_ADMIN_USER}] password: '
+                ),
+            )
+        self.environment[okkcons.ConfigEnv.ADMIN_PASSWORD] = password
+        keycloak_ovn_admin = \
+            '{user}@{profile}'.format(
+                user=okkcons.Const.OVIRT_ADMIN_USER,
+                profile=okkcons.Const.OVIRT_ENGINE_KEYCLOAK_SSO_PROFILE,
+            )
+        self.environment[
+            oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_ADMIN_USER
+        ] = keycloak_ovn_admin
 
+        self.environment[
+            oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_ADMIN_PASSWD
+        ] = password
+
+    @plugin.event(
+        stage=plugin.Stages.STAGE_MISC,
+        condition=lambda self: (
+            self.environment[okkcons.CoreEnv.ENABLE] is False and
+            self.environment[oenginecons.EngineDBEnv.NEW_DATABASE]
+        )
+    )
+    def _misc_keycloak_disabled(self):
+        uninstall_files = []
+        self.environment[
+            osetupcons.CoreEnv.REGISTER_UNINSTALL_GROUPS
+        ].addFiles(
+            group='ovirt_keycloak_files',
+            fileList=uninstall_files,
+        )
+
+        self.environment[otopicons.CoreEnv.MAIN_TRANSACTION].append(
+            filetransaction.FileTransaction(
+                name=okkcons.FileLocations.OVIRT_ENGINE_SERVICE_CONFIG_KEYCLOAK,
+                mode=0o640,
+                owner=self.environment[oengcommcons.SystemEnv.USER_ROOT],
+                group=self.environment[osetupcons.SystemEnv.GROUP_ENGINE],
+                enforcePermissions=True,
+                content=(('KEYCLOAK_BUNDLED=false')),
+                modifiedList=uninstall_files,
+            )
+        )
 
     @plugin.event(
         stage=plugin.Stages.STAGE_MISC,
@@ -91,12 +144,19 @@ class Plugin(plugin.PluginBase):
                 okkcons.Stages.DB_CREDENTIALS_AVAILABLE,
         ),
         condition=lambda self: (
-            self.environment[oenginecons.CoreEnv.ENABLE] and
-            self.environment[oenginecons.EngineDBEnv.NEW_DATABASE] and
-            not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE]
+            self.environment[okkcons.CoreEnv.ENABLE] and
+            self.environment[okkcons.DBEnv.NEW_DATABASE]
         )
     )
-    def _misc(self):
+    def _misc_keycloak_enabled(self):
+        uninstall_files = []
+        self.environment[
+            osetupcons.CoreEnv.REGISTER_UNINSTALL_GROUPS
+        ].addFiles(
+            group='ovirt_keycloak_files',
+            fileList=uninstall_files,
+        )
+
         client_secret = secrets.token_urlsafe(nbytes=16)
         self.environment[okkcons.ConfigEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET] = client_secret
 
@@ -144,9 +204,7 @@ class Plugin(plugin.PluginBase):
                     keycloak_db_max_connections=okkcons.Const.KEYCLOAK_DB_MAX_CONNECTIONS,
                     db_content=db_content,
                 ),
-                modifiedList=self.environment[
-                    otopicons.CoreEnv.MODIFIED_FILES
-                ],
+                modifiedList=uninstall_files,
             )
         )
         self.environment[otopicons.CoreEnv.MAIN_TRANSACTION].append(
@@ -172,9 +230,7 @@ class Plugin(plugin.PluginBase):
                     extension_name=okkcons.Const.OVIRT_ENGINE_KEYCLOAK_SSO_EXTENSION_NAME,
                     profile=okkcons.Const.OVIRT_ENGINE_KEYCLOAK_SSO_PROFILE,
                 ),
-                modifiedList=self.environment[
-                    otopicons.CoreEnv.MODIFIED_FILES
-                ],
+                modifiedList=uninstall_files,
             )
         )
 
@@ -197,9 +253,7 @@ class Plugin(plugin.PluginBase):
                 ).format(
                     extension_name=okkcons.Const.OVIRT_ENGINE_KEYCLOAK_SSO_EXTENSION_NAME,
                 ),
-                modifiedList=self.environment[
-                    otopicons.CoreEnv.MODIFIED_FILES
-                ],
+                modifiedList=uninstall_files,
             )
         )
 
@@ -225,9 +279,7 @@ class Plugin(plugin.PluginBase):
                 ).format(
                     extension_name=okkcons.Const.OVIRT_ENGINE_KEYCLOAK_SSO_EXTENSION_NAME,
                 ),
-                modifiedList=self.environment[
-                    otopicons.CoreEnv.MODIFIED_FILES
-                ],
+                modifiedList=uninstall_files,
             )
         )
 

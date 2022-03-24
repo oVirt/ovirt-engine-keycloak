@@ -41,10 +41,12 @@ class Plugin(plugin.PluginBase):
     @plugin.event(
         stage=plugin.Stages.STAGE_MISC,
         name=okkcons.Stages.DB_CREDENTIALS_AVAILABLE,
+        after=(
+            okkcons.Stages.CORE_ENABLE,
+        ),
         condition=lambda self: (
-            self.environment[oenginecons.CoreEnv.ENABLE] and
-            self.environment[oenginecons.EngineDBEnv.NEW_DATABASE] and
-            not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE] and
+            self.environment[okkcons.CoreEnv.ENABLE] and
+            self.environment[okkcons.DBEnv.NEW_DATABASE] and
             self.environment[okkcons.DBEnv.PASSWORD] is not None
         ),
     )

@@ -54,12 +54,12 @@ class Plugin(plugin.PluginBase):
         )
 
     @plugin.event(
-        stage=plugin.Stages.STAGE_SETUP,
+        stage=plugin.Stages.STAGE_CUSTOMIZATION,
         after=(
             okkcons.Stages.DB_CONNECTION_SETUP,
         ),
         condition=lambda self: (
-            not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE] and
+            self.environment[okkcons.CoreEnv.ENABLE] and
             self.environment[okkcons.DBEnv.NEW_DATABASE]
         ),
     )
@@ -75,17 +75,16 @@ class Plugin(plugin.PluginBase):
         ),
         condition=lambda self: (
             self._enabled and
-            self.environment[oenginecons.EngineDBEnv.NEW_DATABASE] and
-            not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE]
+            self.environment[okkcons.CoreEnv.ENABLE] and
+            self.environment[okkcons.DBEnv.NEW_DATABASE]
         )
-
     )
     def _customization(self):
         enabled = self.environment[
             okkcons.ProvisioningEnv.POSTGRES_PROVISIONING_ENABLED
         ]
 
-        if not self.environment[oenginecons.CoreEnv.ENABLE]:
+        if not self.environment[okkcons.CoreEnv.ENABLE]:
             enabled = False
 
         if enabled is None:
@@ -133,10 +132,9 @@ class Plugin(plugin.PluginBase):
         stage=plugin.Stages.STAGE_CUSTOMIZATION,
         priority=plugin.Stages.PRIORITY_LAST,
         condition=lambda self: (
-            self.environment[oenginecons.CoreEnv.ENABLE] and
             self.environment[okkcons.DBEnv.HOST] == 'localhost' and
-            self.environment[oenginecons.EngineDBEnv.NEW_DATABASE] and
-            not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE]
+            self.environment[okkcons.CoreEnv.ENABLE] and
+            self.environment[okkcons.DBEnv.NEW_DATABASE]
         )
     )
     def _customization_firewall(self):
@@ -165,8 +163,8 @@ class Plugin(plugin.PluginBase):
         ),
         condition=lambda self: (
             self._enabled and
-            self.environment[oenginecons.EngineDBEnv.NEW_DATABASE] and
-            not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE]
+            self.environment[okkcons.CoreEnv.ENABLE] and
+            self.environment[okkcons.DBEnv.NEW_DATABASE]
         )
     )
     def _misc(self):
@@ -183,8 +181,8 @@ class Plugin(plugin.PluginBase):
         ),
         condition=lambda self: (
             self._provisioning.databaseRenamed and
-            self.environment[oenginecons.EngineDBEnv.NEW_DATABASE] and
-            not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE]
+            self.environment[okkcons.CoreEnv.ENABLE] and
+            self.environment[okkcons.DBEnv.NEW_DATABASE]
         )
     )
     def _closeup(self):

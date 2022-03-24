@@ -59,6 +59,8 @@ class Const(object):
     OVIRT_ENGINE_KEYCLOAK_DB_BACKUP_PREFIX = 'keycloak'
     KEYCLOAK_ADD_USER_SCRIPT = 'add-user-keycloak.sh'
     KEYCLOAK_CLI_ADMIN_SCRIPT = 'kcadm.sh'
+    OVIRT_ENGINE_KEYCLOAK_PACKAGE_NAME = 'ovirt-engine-keycloak'
+    OVIRT_ENGINE_KEYCLOAK_SETUP_PACKAGE_NAME = 'ovirt-engine-keycloak-setup'
 
     @classproperty
     def KEYCLOAK_DB_ENV_KEYS(self):
@@ -134,10 +136,30 @@ class ConfigEnv(object):
     def OVIRT_ENGINE_KEYCLOAK_DB_BACKUP_DIR(self):
         return 'OVESETUP_KEYCLOAK_CONFIG/keycloakDbBackupDir'
 
+    @osetupattrs(
+        answerfile=True,
+        is_secret=True,
+    )
+    def ADMIN_PASSWORD(self):
+        return 'OVESETUP_KEYCLOAK_CONFIG/adminPassword'
+
     KEYCLOAK_ADD_USER_SCRIPT = 'OVESETUP_KEYCLOAK_CONFIG/addUserKeycloakScript'
     KEYCLOAK_CLI_ADMIN_SCRIPT = 'OVESETUP_KEYCLOAK_CONFIG/kcadmScript'
 
+@util.export
+@util.codegen
+@osetupattrsclass
+class CoreEnv(object):
 
+    @osetupattrs(
+        answerfile=True,
+        postinstallfile=True,
+        summary=True,
+        reconfigurable=False,
+        description=_('Keycloak installation'),
+    )
+    def ENABLE(self):
+        return 'OVESETUP_KEYCLOAK_CORE/enable'
 
 @util.export
 @util.codegen
@@ -261,6 +283,13 @@ class RemoveEnv(object):
 
 @util.export
 @util.codegen
+@osetupattrsclass
+class RPMDistroEnv(object):
+    PACKAGES = 'OVESETUP_KEYCLOAK_RPMDISRO_PACKAGES'
+    PACKAGES_SETUP = 'OVESETUP_KEYCLOAK_RPMDISRO_PACKAGES_SETUP'
+
+@util.export
+@util.codegen
 class FileLocations(oesetupcons.FileLocations):
     PKG_DATA_DIR = config.PKG_DATA_DIR
     PKG_STATE_DIR = config.PKG_STATE_DIR
@@ -334,6 +363,8 @@ class FileLocations(oesetupcons.FileLocations):
 @util.export
 class Stages(object):
     CLIENT_SECRET_GENERATED = 'osetup.keycloak.core.client_secret'
+    CORE_ENABLE = 'osetup.keycloak.core.enable'
+    KEYCLOAK_CREDENTIALS_SETUP = 'osetup.keycloak.config.credentials'
     DB_CREDENTIALS_AVAILABLE = 'osetup.keycloak.db.connection.credentials'
     DB_CONNECTION_SETUP = 'osetup.keycloak.db.connection.setup'
     ENGINE_DB_CONNECTION_AVAILABLE = \

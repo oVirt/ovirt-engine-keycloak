@@ -52,13 +52,12 @@ class Plugin(plugin.PluginBase):
             oengcommcons.Stages.CORE_ENGINE_START,
         ),
         condition=lambda self: (
-            self.environment[oenginecons.CoreEnv.ENABLE] and
-            self.environment[oenginecons.EngineDBEnv.NEW_DATABASE] and
-            not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE]
+            self.environment[okkcons.CoreEnv.ENABLE] and
+            self.environment[okkcons.DBEnv.NEW_DATABASE]
         ),
     )
     def _setup_ovirt(self):
-        password = self.environment.get(oenginecons.ConfigEnv.ADMIN_PASSWORD)
+        password = self.environment.get(okkcons.ConfigEnv.ADMIN_PASSWORD)
         if password:
             self.logger.info('Start with setting up Keycloak for Ovirt Engine')
 
@@ -521,9 +520,7 @@ class Plugin(plugin.PluginBase):
             osetupcons.Stages.DIALOG_TITLES_S_SUMMARY,
         ),
         condition=lambda self: (
-            self.environment[oenginecons.CoreEnv.ENABLE] and
-            self.environment[oenginecons.EngineDBEnv.NEW_DATABASE] and
-            not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE]
+            self.environment[okkcons.CoreEnv.ENABLE]
         )
     )
     def _closeup(self):

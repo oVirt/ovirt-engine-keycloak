@@ -79,11 +79,11 @@ class Plugin(plugin.PluginBase):
     @plugin.event(
         stage=plugin.Stages.STAGE_MISC,
         condition=lambda self: (
-                self.environment[okkcons.DBEnv.PASSWORD] is not None and
-                self.environment[okkcons.RemoveEnv.REMOVE_DATABASE]
+            self.environment[okkcons.DBEnv.PASSWORD] is not None and
+            self.environment[okkcons.RemoveEnv.REMOVE_DATABASE]
         ),
         after=(
-                okkcons.Stages.DB_CREDENTIALS_AVAILABLE,
+            okkcons.Stages.DB_CREDENTIALS_AVAILABLE,
         ),
     )
     def _misc(self):
@@ -121,10 +121,10 @@ class Plugin(plugin.PluginBase):
         stage=plugin.Stages.STAGE_CLOSEUP,
         condition=lambda self: self._bkpfile is not None,
         before=(
-                osetupcons.Stages.DIALOG_TITLES_E_SUMMARY,
+            osetupcons.Stages.DIALOG_TITLES_E_SUMMARY,
         ),
         after=(
-                osetupcons.Stages.DIALOG_TITLES_S_SUMMARY,
+            osetupcons.Stages.DIALOG_TITLES_S_SUMMARY,
         ),
     )
     def _closeup(self):

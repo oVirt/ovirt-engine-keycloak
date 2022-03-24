@@ -45,12 +45,11 @@ class Plugin(plugin.PluginBase):
     @plugin.event(
         stage=plugin.Stages.STAGE_VALIDATION,
         condition=lambda self: (
-            self.environment[oenginecons.CoreEnv.ENABLE] and
-            self.environment[oenginecons.EngineDBEnv.NEW_DATABASE] and
-            not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE]
+            self.environment[okkcons.CoreEnv.ENABLE]
         )
     )
     def _validation(self):
+        # not okkcons.DBEnv.NEW_DATABASE ??
         path = self.environment[
             okkcons.ConfigEnv.OVIRT_ENGINE_KEYCLOAK_DB_BACKUP_DIR
         ]
