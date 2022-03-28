@@ -25,7 +25,7 @@ from ovirt_engine_setup.keycloak import constants as okkcons
 from ovirt_setup_lib import dialog
 
 def _(m):
-    return gettext.dgettext(message=m, domain='ovirt-engine-setup')
+    return gettext.dgettext(message=m, domain='ovirt-engine-keycloak')
 
 
 @util.export
@@ -141,7 +141,7 @@ class Plugin(plugin.PluginBase):
         stage=plugin.Stages.STAGE_MISC,
         name=okkcons.Stages.CLIENT_SECRET_GENERATED,
         after=(
-                okkcons.Stages.DB_CREDENTIALS_AVAILABLE,
+            okkcons.Stages.DB_CREDENTIALS_AVAILABLE,
         ),
         condition=lambda self: (
             self.environment[okkcons.CoreEnv.ENABLE] and
@@ -158,10 +158,22 @@ class Plugin(plugin.PluginBase):
         )
 
         client_secret = secrets.token_urlsafe(nbytes=16)
-        self.environment[okkcons.ConfigEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET] = client_secret
+        self.environment[
+            okkcons.ConfigEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET
+        ] = client_secret
 
         userinfo_endpoint = self._build_endpoint_url("userinfo")
+        self.environment[
+            okkcons.ConfigEnv.KEYCLOAK_USERINFO_URL
+        ] = userinfo_endpoint
         token_endpoint = self._build_endpoint_url("token")
+        self.environment[
+            okkcons.ConfigEnv.KEYCLOAK_TOKEN_URL
+        ] = token_endpoint
+        self.environment[
+            okkcons.ConfigEnv.KEYCLOAK_AUTH_URL
+        ] = self._build_endpoint_url("auth")
+
         logout_endpoint = self._build_endpoint_url("logout")
 
         db_content = database.OvirtUtils(

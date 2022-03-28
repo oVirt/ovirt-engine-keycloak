@@ -97,11 +97,26 @@ class Plugin(plugin.PluginBase):
             self._setup_protocol_mapper_groups(
                 client_id=client_id
             )
+            self._setup_protocol_mapper_user_realm_role(
+                client_id=client_id
+            )
 
             administrator_group_id = self._setup_ovirt_administrator_group()
             self._setup_internal_admin_user(
                 administrator_group_id=administrator_group_id,
                 password=password,
+            )
+
+            for role in okkcons.Const.GRAFANA_USER_ROLES:
+                # all required roles created up front
+                # initially only 'admin' in use
+                self._add_role(
+                    name=role,
+                    description=f"Grafana '{role}' role"
+                )
+            self._assign_role_to_user(
+                username=okkcons.Const.OVIRT_ADMIN_USER,
+                role_name=okkcons.Const.GRAFANA_ADMIN_ROLE
             )
             self.logger.info('Done with setting up Keycloak for Ovirt Engine')
 
@@ -318,6 +333,32 @@ class Plugin(plugin.PluginBase):
                 )
             )
 
+    def _setup_protocol_mapper_user_realm_role(self, client_id):
+        if self._get_protocol_mapper_id(
+                protocol_mapper_name='realm role',
+                client_id=client_id,
+        ) is None:
+            self.execute(
+                (
+                    self.environment[
+                        okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                    ],
+                    'create',
+                    f'clients/{client_id}/protocol-mappers/models',
+                    '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
+                    '-s', 'name=realm role',
+                    '-s', 'protocol=openid-connect',
+                    '-s', 'protocolMapper=oidc-usermodel-realm-role-mapper',
+                    '-s', 'config."id.token.claim"="true"',
+                    '-s', 'config."access.token.claim"="true"',
+                    '-s', 'config."userinfo.token.claim"="true"',
+                    '-s', 'config."claim.name"="realm_access.roles"',
+                    '-s', 'config."jsonType.label"="String"',
+                    '-s', 'config."multivalued"="true"',
+                    '-i',
+                )
+            )
+
     def _setup_ovirt_administrator_group(self):
         group_id = self._get_group_id(
             okkcons.Const.OVIRT_ADMINISTRATOR_USER_GROUP_NAME
@@ -388,6 +429,54 @@ class Plugin(plugin.PluginBase):
                 '-s', 'groupId={}'.format(administrator_group_id),
                 '-n',
             )
+        )
+
+    def _add_role(self, name, description):
+        role_id = self._get_role_id(role_name=name)
+        if role_id is None:
+            rc, stdout, stderr = self.execute(
+                (
+                    self.environment[
+                        okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                    ],
+                    'create',
+                    'roles',
+                    '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
+                    '-s', f"name={name}",
+                    '-s', f"description={description}",
+                    '-i',
+                )
+            )
+            role_id = self._results(rc, stdout)
+        return role_id
+
+    def _assign_role_to_user(self, username, role_name):
+        rc, stdout, stderr = self.execute(
+            (
+                self.environment[
+                    okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                ],
+                'get-roles',
+                '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
+                '--uusername', username,
+                '--rolename', role_name
+            )
+        )
+
+    def _get_role_id(self, role_name):
+        rc, stdout, stderr = self.execute(
+            (
+                self.environment[
+                    okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                ],
+                'get-roles',
+                '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
+                '--fields', 'id,name',
+            )
+        )
+        return self._get_id_from_response(
+            self._results(rc, stdout),
+            'name', role_name
         )
 
     def _get_user_id(self, username):
@@ -520,7 +609,8 @@ class Plugin(plugin.PluginBase):
             osetupcons.Stages.DIALOG_TITLES_S_SUMMARY,
         ),
         condition=lambda self: (
-            self.environment[okkcons.CoreEnv.ENABLE]
+            self.environment[okkcons.CoreEnv.ENABLE] and
+            self.environment[okkcons.DBEnv.NEW_DATABASE]
         )
     )
     def _closeup(self):

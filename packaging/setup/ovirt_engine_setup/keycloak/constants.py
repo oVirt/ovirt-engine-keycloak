@@ -53,6 +53,14 @@ class Const(object):
         'ovirt-ext=token:password-access',
         'ovirt-ext=revoke:revoke-all',
     )
+    GRAFANA_ADMIN_ROLE = 'grafana-admin'
+    GRAFANA_EDITOR_ROLE = 'grafana-editor'
+    GRAFANA_VIEWER_ROLE = 'grafana-viewer'
+    GRAFANA_USER_ROLES = (
+        GRAFANA_ADMIN_ROLE,
+        GRAFANA_EDITOR_ROLE,
+        GRAFANA_VIEWER_ROLE,
+    )
     OVIRT_ADMINISTRATOR_USER_GROUP_NAME = 'ovirt-administrator'
     OVIRT_ENGINE_KEYCLOAK_SSO_EXTENSION_NAME = 'internalkeycloak'
     OVIRT_ENGINE_KEYCLOAK_SSO_PROFILE = 'internalsso'
@@ -145,6 +153,9 @@ class ConfigEnv(object):
 
     KEYCLOAK_ADD_USER_SCRIPT = 'OVESETUP_KEYCLOAK_CONFIG/addUserKeycloakScript'
     KEYCLOAK_CLI_ADMIN_SCRIPT = 'OVESETUP_KEYCLOAK_CONFIG/kcadmScript'
+    KEYCLOAK_AUTH_URL = 'OVESETUP_KEYCLOAK_CONFIG/authUrl'
+    KEYCLOAK_TOKEN_URL = 'OVESETUP_KEYCLOAK_CONFIG/tokenUrl'
+    KEYCLOAK_USERINFO_URL = 'OVESETUP_KEYCLOAK_CONFIG/userinfoUrl'
 
 @util.export
 @util.codegen
