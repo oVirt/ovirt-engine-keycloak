@@ -102,9 +102,7 @@ ln -sf %{_datadir}/%{name}/bin/client/keycloak-client-registration-cli-@KEYCLOAK
 
 
 %files
-%dir %attr(-, %{engine_user}, %{engine_group}) %{_localstatedir}/lib/ovirt-engine-keycloak/
 %{_datadir}/%{name}/
-%{_localstatedir}/lib/ovirt-engine-keycloak/backups/
 %{ovirt_engine_wildfly_data}/modules/layers.conf
 %{ovirt_engine_wildfly_data}/modules/system/layers/keycloak
 %{ovirt_engine_wildfly_data}/themes
@@ -115,6 +113,8 @@ ln -sf %{_datadir}/%{name}/bin/client/keycloak-client-registration-cli-@KEYCLOAK
 %{_docdir}/%{name}/
 
 %files setup
+%dir %attr(-, %{engine_user}, %{engine_group}) %{_localstatedir}/lib/ovirt-engine-keycloak/
+%{_localstatedir}/lib/ovirt-engine-keycloak/backups/
 %{ovirt_engine_data}/setup/ovirt_engine_setup/keycloak/
 %{ovirt_engine_data}/setup/plugins/*/ovirt-engine-keycloak/
 
