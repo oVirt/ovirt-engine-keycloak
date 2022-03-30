@@ -30,6 +30,10 @@ def _(m):
 class Plugin(plugin.PluginBase):
     """Ovirt engine keycloak internal sso realm configuration plugin."""
 
+    KCADM_ENV = {
+        'KC_OPTS':'-Dcom.redhat.fips=false'
+    }
+
     def __init__(self, context):
         super(Plugin, self).__init__(context=context)
 
@@ -131,6 +135,7 @@ class Plugin(plugin.PluginBase):
                 '--trustpass', oenginecons.Const.PKI_PASSWORD,
                 oenginecons.FileLocations.OVIRT_ENGINE_PKI_ENGINE_TRUST_STORE
             ),
+            envAppend=self.KCADM_ENV,
         )
 
     def _login(self, passwd):
@@ -157,6 +162,7 @@ class Plugin(plugin.PluginBase):
                 ].rsplit('@', 1)[0],
             ),
             stdin=[passwd, ''],
+            envAppend=self.KCADM_ENV,
         )
 
     def _setup_realm(self):
@@ -176,6 +182,7 @@ class Plugin(plugin.PluginBase):
                     '-s', 'enabled=true',
                     '-i'
                 ),
+                envAppend=self.KCADM_ENV,
             )
             realm_id = self._results(rc, stdout)
         else:
@@ -187,7 +194,8 @@ class Plugin(plugin.PluginBase):
                     'update',
                     'realms/%s' % okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                     '-s', 'enabled=true',
-                )
+                ),
+                envAppend=self.KCADM_ENV,
             )
         return realm_id
 
@@ -218,6 +226,7 @@ class Plugin(plugin.PluginBase):
                     ),
                     '-i',
                 ),
+                envAppend=self.KCADM_ENV,
             )
             cid = self._results(rc, stdout)
 
@@ -242,6 +251,7 @@ class Plugin(plugin.PluginBase):
                 '-s', 'webOrigins=["https://{}"]'.format(engine_host),
                 '-s', 'attributes."access.token.lifespan"=17280',
             ),
+            envAppend=self.KCADM_ENV,
         )
         return cid
 
@@ -263,6 +273,7 @@ class Plugin(plugin.PluginBase):
                     '-s', 'protocol=openid-connect',
                     '-i',
                 ),
+                envAppend=self.KCADM_ENV,
             )
             client_scope_id = self._results(rc, stdout)
 
@@ -278,7 +289,8 @@ class Plugin(plugin.PluginBase):
                     client_id=client_id,
                     client_scope_id=client_scope_id
                 ),
-            )
+            ),
+            envAppend=self.KCADM_ENV,
         )
         return client_scope_id
 
@@ -305,7 +317,8 @@ class Plugin(plugin.PluginBase):
                     '-s', 'config."user.attribute"="username"',
                     '-s', 'config."jsonType.label"="String"',
                     '-i',
-                )
+                ),
+                envAppend=self.KCADM_ENV,
             )
 
     def _setup_protocol_mapper_groups(self, client_id):
@@ -330,7 +343,8 @@ class Plugin(plugin.PluginBase):
                     '-s', 'config."claim.name"="groups"',
                     '-s', 'config."full.path"="true"',
                     '-i',
-                )
+                ),
+                envAppend=self.KCADM_ENV,
             )
 
     def _setup_protocol_mapper_user_realm_role(self, client_id):
@@ -356,7 +370,8 @@ class Plugin(plugin.PluginBase):
                     '-s', 'config."jsonType.label"="String"',
                     '-s', 'config."multivalued"="true"',
                     '-i',
-                )
+                ),
+                envAppend=self.KCADM_ENV,
             )
 
     def _setup_ovirt_administrator_group(self):
@@ -376,7 +391,8 @@ class Plugin(plugin.PluginBase):
                         okkcons.Const.OVIRT_ADMINISTRATOR_USER_GROUP_NAME
                     ),
                     '-i',
-                )
+                ),
+                envAppend=self.KCADM_ENV,
             )
             group_id = self._results(rc, stdout)
         return group_id
@@ -395,7 +411,8 @@ class Plugin(plugin.PluginBase):
                     '-s', 'username={}'.format(okkcons.Const.OVIRT_ADMIN_USER),
                     '-s', 'enabled=true',
                     '-i',
-                )
+                ),
+                envAppend=self.KCADM_ENV,
             )
             admin_user_id = self._results(rc, stdout)
 
@@ -409,7 +426,8 @@ class Plugin(plugin.PluginBase):
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                 '--username', okkcons.Const.OVIRT_ADMIN_USER,
             ),
-            stdin=[password, '']
+            stdin=[password, ''],
+            envAppend=self.KCADM_ENV,
         )
 
         # assign admin to ovirt-administrator group
@@ -428,7 +446,8 @@ class Plugin(plugin.PluginBase):
                 '-s', 'userId={}'.format(admin_user_id),
                 '-s', 'groupId={}'.format(administrator_group_id),
                 '-n',
-            )
+            ),
+            envAppend=self.KCADM_ENV,
         )
 
     def _add_role(self, name, description):
@@ -445,7 +464,8 @@ class Plugin(plugin.PluginBase):
                     '-s', f"name={name}",
                     '-s', f"description={description}",
                     '-i',
-                )
+                ),
+                envAppend=self.KCADM_ENV,
             )
             role_id = self._results(rc, stdout)
         return role_id
@@ -460,7 +480,8 @@ class Plugin(plugin.PluginBase):
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                 '--uusername', username,
                 '--rolename', role_name
-            )
+            ),
+            envAppend=self.KCADM_ENV,
         )
 
     def _get_role_id(self, role_name):
@@ -472,7 +493,8 @@ class Plugin(plugin.PluginBase):
                 'get-roles',
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                 '--fields', 'id,name',
-            )
+            ),
+            envAppend=self.KCADM_ENV,
         )
         return self._get_id_from_response(
             self._results(rc, stdout),
@@ -489,7 +511,8 @@ class Plugin(plugin.PluginBase):
                 'users',
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                 '--fields', 'id,username',
-            )
+            ),
+            envAppend=self.KCADM_ENV,
         )
         return self._get_id_from_response(
             self._results(rc, stdout),
@@ -506,7 +529,8 @@ class Plugin(plugin.PluginBase):
                 'clients',
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                 '--fields', 'id,clientId',
-            )
+            ),
+            envAppend=self.KCADM_ENV,
         )
         return self._get_id_from_response(
             self._results(rc, stdout),
@@ -524,6 +548,7 @@ class Plugin(plugin.PluginBase):
                 'realms',
                 '--fields', 'id,realm',
             ),
+            envAppend=self.KCADM_ENV,
         )
         return self._get_id_from_response(
             self._results(rc, stdout),
@@ -541,7 +566,8 @@ class Plugin(plugin.PluginBase):
                 'client-scopes',
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                 '--fields', 'id,name',
-            )
+            ),
+            envAppend=self.KCADM_ENV,
         )
         return self._get_id_from_response(
             self._results(rc, stdout),
@@ -559,7 +585,8 @@ class Plugin(plugin.PluginBase):
                 'clients/{}/protocol-mappers/models'.format(client_id),
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                 '--fields', 'id,name',
-            )
+            ),
+            envAppend=self.KCADM_ENV,
         )
         return self._get_id_from_response(
             self._results(rc, stdout),
@@ -577,7 +604,8 @@ class Plugin(plugin.PluginBase):
                 'groups',
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                 '--fields', 'id,name',
-            )
+            ),
+            envAppend=self.KCADM_ENV,
         )
         return self._get_id_from_response(
             self._results(rc, stdout),

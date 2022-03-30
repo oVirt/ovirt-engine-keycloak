@@ -77,9 +77,12 @@ class Plugin(plugin.PluginBase):
                     '-u', self.environment[
                         oenginecons.ConfigEnv.ADMIN_USER
                     ].rsplit('@', 1)[0],
-                    '--sc', okkcons.FileLocations.OVIRT_ENGINE_CONFIG_DIR,
-                    '-p', password,
-                )
+                     '--sc', okkcons.FileLocations.OVIRT_ENGINE_CONFIG_DIR,
+                     '-p', password,
+                ),
+                envAppend={
+                    'JAVA_OPTS': '-Dcom.redhat.fips=false',
+                },
             )
             os.chown(
                 okkcons.FileLocations.KEYCLOAK_ADD_INITIAL_ADMIN_FILE,
