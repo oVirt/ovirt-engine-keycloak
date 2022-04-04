@@ -37,6 +37,7 @@ class Const(object):
     KEYCLOAK_MASTER_REALM = 'master'
     KEYCLOAK_INTERNAL_REALM = 'ovirt-internal'
     OVIRT_ADMIN_USER = 'admin@ovirt'
+    OVIRT_ADMIN_USER_EMAIL = 'admin@localhost'
     KEYCLOAK_INTERNAL_CLIENT_NAME = 'ovirt-engine-internal'
     KEYCLOAK_WEB_CONTEXT = 'ovirt-engine-auth'
     KEYCLOAK_DB_MAX_CONNECTIONS = 20
