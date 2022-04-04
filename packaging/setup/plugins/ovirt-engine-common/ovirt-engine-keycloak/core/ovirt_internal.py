@@ -57,7 +57,13 @@ class Plugin(plugin.PluginBase):
         ),
         condition=lambda self: (
             self.environment[okkcons.CoreEnv.ENABLE] and
-            self.environment[okkcons.DBEnv.NEW_DATABASE]
+            self.environment[okkcons.DBEnv.NEW_DATABASE] and
+            self.environment[
+                oenginecons.EngineDBEnv.JUST_RESTORED
+            ] is not True and
+            not self.environment[
+                osetupcons.CoreEnv.ACTION
+            ] == osetupcons.Const.ACTION_PROVISIONDB
         ),
     )
     def _setup_ovirt(self):

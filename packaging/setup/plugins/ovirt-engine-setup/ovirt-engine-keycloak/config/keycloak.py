@@ -47,6 +47,10 @@ class Plugin(plugin.PluginBase):
             okkcons.ConfigEnv.ADMIN_PASSWORD,
             None
         )
+        self.environment.setdefault(
+            okkcons.ConfigEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET,
+            None,
+        )
 
     @plugin.event(
         stage=plugin.Stages.STAGE_CUSTOMIZATION,
@@ -140,12 +144,29 @@ class Plugin(plugin.PluginBase):
     @plugin.event(
         stage=plugin.Stages.STAGE_MISC,
         name=okkcons.Stages.CLIENT_SECRET_GENERATED,
-        after=(
-            okkcons.Stages.DB_CREDENTIALS_AVAILABLE,
-        ),
         condition=lambda self: (
             self.environment[okkcons.CoreEnv.ENABLE] and
-            self.environment[okkcons.DBEnv.NEW_DATABASE]
+            not self.environment[
+                okkcons.ConfigEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET
+            ]
+        )
+    )
+    def  _misc_client_secret(self):
+        client_secret = secrets.token_urlsafe(nbytes=16)
+        self.environment[
+            okkcons.ConfigEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET
+        ] = client_secret
+
+
+    @plugin.event(
+        stage=plugin.Stages.STAGE_MISC,
+        name=okkcons.Stages.AUTH_ENDPOINTS_RESOLVED,
+        after=(
+            okkcons.Stages.DB_CREDENTIALS_AVAILABLE,
+            okkcons.Stages.CLIENT_SECRET_GENERATED,
+        ),
+        condition=lambda self: (
+            self.environment[okkcons.CoreEnv.ENABLE]
         )
     )
     def _misc_keycloak_enabled(self):
@@ -157,10 +178,9 @@ class Plugin(plugin.PluginBase):
             fileList=uninstall_files,
         )
 
-        client_secret = secrets.token_urlsafe(nbytes=16)
-        self.environment[
+        client_secret = self.environment[
             okkcons.ConfigEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET
-        ] = client_secret
+        ]
 
         userinfo_endpoint = self._build_endpoint_url("userinfo")
         self.environment[

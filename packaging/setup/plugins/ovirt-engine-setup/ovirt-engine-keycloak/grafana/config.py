@@ -45,6 +45,7 @@ class Plugin(plugin.PluginBase):
         stage=plugin.Stages.STAGE_MISC,
         after=(
             okkcons.Stages.CLIENT_SECRET_GENERATED,
+            okkcons.Stages.AUTH_ENDPOINTS_RESOLVED,
         ),
         before=(
             ogdwhcons.Stages.GRAFANA_CONFIG,

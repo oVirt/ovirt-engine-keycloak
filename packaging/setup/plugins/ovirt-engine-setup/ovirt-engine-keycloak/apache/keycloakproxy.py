@@ -44,8 +44,7 @@ class Plugin(plugin.PluginBase):
     @plugin.event(
         stage=plugin.Stages.STAGE_MISC,
         condition=lambda self: (
-            self.environment[okkcons.CoreEnv.ENABLE] and
-            self.environment[okkcons.DBEnv.NEW_DATABASE]
+            self.environment[okkcons.CoreEnv.ENABLE]
         )
     )
     def _httpd_keycloak_misc(self):

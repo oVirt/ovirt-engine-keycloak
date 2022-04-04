@@ -134,6 +134,8 @@ class ConfigEnv(object):
 
     @osetupattrs(
         is_secret=True,
+        answerfile=True,
+        postinstallfile=True,
     )
     def KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET(self):
         return 'OVESETUP_KEYCLOAK/ovirtInternalClientSecret'
@@ -146,6 +148,7 @@ class ConfigEnv(object):
 
     @osetupattrs(
         answerfile=True,
+        postinstallfile=True,
         is_secret=True,
     )
     def ADMIN_PASSWORD(self):
@@ -374,6 +377,7 @@ class FileLocations(oesetupcons.FileLocations):
 @util.export
 class Stages(object):
     CLIENT_SECRET_GENERATED = 'osetup.keycloak.core.client_secret'
+    AUTH_ENDPOINTS_RESOLVED = 'osetup.keycloak.core.auth.endpoints_resolved'
     CORE_ENABLE = 'osetup.keycloak.core.enable'
     KEYCLOAK_CREDENTIALS_SETUP = 'osetup.keycloak.config.credentials'
     DB_CREDENTIALS_AVAILABLE = 'osetup.keycloak.db.connection.credentials'

@@ -53,12 +53,18 @@ class Plugin(plugin.PluginBase):
         ),
         condition=lambda self: (
             self.environment[okkcons.CoreEnv.ENABLE] and
-            self.environment[okkcons.DBEnv.NEW_DATABASE]
+            self.environment[okkcons.DBEnv.NEW_DATABASE] and
+            self.environment[
+                oenginecons.EngineDBEnv.JUST_RESTORED
+            ] is not True and
+            not self.environment[
+                osetupcons.CoreEnv.ACTION
+            ] == osetupcons.Const.ACTION_PROVISIONDB
         ),
     )
     def _create_admin(self):
         password = self.environment[okkcons.ConfigEnv.ADMIN_PASSWORD]
-        if password is not None:
+        if password:
             self.logger.info(_('Creating initial Keycloak admin user'))
             # TODO consider using transaction
             #  ie. be implementing transaction.TransactionElement
