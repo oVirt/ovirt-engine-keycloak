@@ -7,9 +7,15 @@
 #
 
 
-"""Config."""
+from otopi import util
 
-PKG_DATA_DIR = '@PKG_DATA_DIR@'
-PKG_STATE_DIR = '@PKG_STATE_DIR@'
+
+from . import postgres
+
+
+@util.export
+def createPlugins(context):
+    postgres.Plugin(context=context)
+
 
 # vim: expandtab tabstop=4 shiftwidth=4

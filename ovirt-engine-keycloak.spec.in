@@ -4,6 +4,8 @@
 
 %global ovirt_engine_wildfly_data %{_datadir}/ovirt-engine-wildfly
 %global ovirt_engine_data %{_datadir}/ovirt-engine
+%global engine_group ovirt
+%global engine_user ovirt
 
 %global make_common_opts \\\
 	-j1 \\\
@@ -13,6 +15,7 @@
 	RPM_RELEASE=%{release} \\\
 	PREFIX=%{_prefix} \\\
 	DATAROOT_DIR=%{_datadir} \\\
+	LOCALSTATE_DIR=%{_localstatedir} \\\
 	%{?EXTRA_BUILD_FLAGS:EXTRA_BUILD_FLAGS="%{EXTRA_BUILD_FLAGS}"}
 
 
@@ -33,6 +36,8 @@ Source:		%{name}-@RPM_VERSION@.tar.gz
 BuildRequires:	unzip
 
 Requires:	%{name}-setup >= %{version}
+Requires:	mod_auth_openidc >= 2.3.7
+Requires:	ovirt-engine-extension-aaa-misc >= 1.1.1
 
 %description
 Keycloak SSO for oVirt Engine.
@@ -47,6 +52,7 @@ Group:		Virtualization/Management
 BuildRequires:	python3
 BuildRequires:	python3-devel
 
+Requires:	%{name} >= 15.0.2
 Requires:	ovirt-engine-setup-plugin-ovirt-engine-common >= 4.5.0
 Requires:	python%{python3_pkgversion}-ovirt-setup-lib
 
@@ -67,6 +73,11 @@ make %{make_common_opts}
 rm -fr "%{buildroot}"
 make %{make_common_opts} install DESTDIR=%{buildroot}
 
+
+# /var creation
+install -dm 755 "%{buildroot}/%{_localstatedir}/lib/ovirt-engine-keycloak"
+
+
 # Unzip downloaded keycloak overlay package
 mkdir -p %{buildroot}%{_datadir}
 unzip -d %{buildroot}%{_datadir}/%{name} @KEYCLOAK_OVERLAY_ZIP@
@@ -85,6 +96,7 @@ ln -sf %{_datadir}/%{name}/modules/system/layers/keycloak %{buildroot}%{ovirt_en
 
 mkdir -p %{buildroot}%{_datadir}/ovirt-engine-wildfly/bin/client
 ln -sf %{_datadir}/%{name}/bin/add-user-keycloak.sh %{buildroot}%{ovirt_engine_wildfly_data}/bin/add-user-keycloak.sh
+ln -sf %{_datadir}/%{name}/bin/kcadm.sh %{buildroot}%{ovirt_engine_wildfly_data}/bin/kcadm.sh
 ln -sf %{_datadir}/%{name}/bin/client/keycloak-admin-cli-@KEYCLOAK_VERSION@.jar %{buildroot}%{ovirt_engine_wildfly_data}/bin/client/keycloak-admin-cli-@KEYCLOAK_VERSION@.jar
 ln -sf %{_datadir}/%{name}/bin/client/keycloak-client-registration-cli-@KEYCLOAK_VERSION@.jar %{buildroot}%{ovirt_engine_wildfly_data}/bin/client/keycloak-client-registration-cli-@KEYCLOAK_VERSION@.jar
 
@@ -97,13 +109,14 @@ ln -sf %{_datadir}/%{name}/bin/client/keycloak-client-registration-cli-@KEYCLOAK
 %{ovirt_engine_wildfly_data}/bin/client/keycloak-admin-cli-@KEYCLOAK_VERSION@.jar
 %{ovirt_engine_wildfly_data}/bin/client/keycloak-client-registration-cli-@KEYCLOAK_VERSION@.jar
 %{ovirt_engine_wildfly_data}/bin/add-user-keycloak.sh
+%{ovirt_engine_wildfly_data}/bin/kcadm.sh
 %{_docdir}/%{name}/
 
 %files setup
+%dir %attr(-, %{engine_user}, %{engine_group}) %{_localstatedir}/lib/ovirt-engine-keycloak/
+%{_localstatedir}/lib/ovirt-engine-keycloak/backups/
 %{ovirt_engine_data}/setup/ovirt_engine_setup/keycloak/
-%{ovirt_engine_data}/setup/plugins/*/ovirt-engine-keycloak/apache
-%{ovirt_engine_data}/setup/plugins/*/ovirt-engine-keycloak/ovirt-engine
-
+%{ovirt_engine_data}/setup/plugins/*/ovirt-engine-keycloak/
 
 %changelog
 * Wed Nov 10 2021 Artur Socha <asocha@redhat.com> 15.0.2-1

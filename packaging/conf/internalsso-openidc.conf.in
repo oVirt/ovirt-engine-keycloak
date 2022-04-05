@@ -1,0 +1,58 @@
+<IfModule !auth_openidc_module>
+    LoadModule auth_openidc_module modules/mod_auth_openidc.so
+</IfModule>
+
+<IfModule auth_openidc_module>
+    # must point to your keycloak server
+    OIDCProviderMetadataURL https://@ENGINE_FQDN@/@KEYCLOAK_WEB_CONTEXT@/realms/@OVIRT_REALM@/.well-known/openid-configuration
+
+    # TODO check what it takes to enable SSL validation below. Currently, when enabled, 'Internal Server Error' is shown
+    OIDCSSLValidateServer Off
+
+    # client id defined in Keycloak UI, other custom names are allowed
+    OIDCClientID @CLIENT_ID@
+
+    # client secret generated for the above CLIENT_ID from keycloak
+    OIDCClientSecret @CLIENT_SECRET@
+
+    # must point to your engine's
+    OIDCRedirectURI https://@ENGINE_FQDN@/ovirt-engine/callback
+    OIDCDefaultURL https://@ENGINE_FQDN@/ovirt-engine/login?scope=ovirt-app-admin+ovirt-app-portal+ovirt-ext%3Dauth%3Asequence-priority%3D%7E
+
+    # The claim that is used when setting the REMOTE_USER variable on OAuth 2.0 protected paths.
+    # When not defined the default "sub" is used.
+    #
+    # See also:
+    #   https://github.com/zmartzone/mod_auth_openidc/blob/8e7284f6af6daa3e12578e7304eac96fc4b516af/auth_openidc.conf#L449
+    #
+    OIDCRemoteUserClaim preferred_username
+    OIDCCryptoPassphrase "exec:/bin/bash -c \"head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32\""
+
+    <LocationMatch ^/ovirt-engine/sso/(interactive-login-negotiate|oauth/token-http-auth)|^/ovirt-engine/callback>
+        <If "req('Authorization') !~ /^(Bearer|Basic)/i">
+
+          Require valid-user
+          AuthType openid-connect
+
+          ErrorDocument 401 "<html><meta http-equiv=\"refresh\" content=\"0; url=/ovirt-engine/sso/login-unauthorized\"/><body><a href=\"/ovirt-engine/sso/login-unauthorized\">Here</a></body></html>"
+        </If>
+    </LocationMatch>
+
+    OIDCOAuthIntrospectionEndpoint https://@ENGINE_FQDN@/@KEYCLOAK_WEB_CONTEXT@/realms/@OVIRT_REALM@/protocol/openid-connect/token/introspect
+    # TODO check what it takes to enable SSL validation below. Currently, when enabled, 'Internal Server Error' is shown
+    OIDCOAuthSSLValidateServer    Off
+    OIDCOAuthIntrospectionEndpointParams token_type_hint=access_token
+
+    # client id defined in Keycloak UI, other custom names are allowed
+    OIDCOAuthClientID @CLIENT_ID@
+
+    # client secret generated for the above CLIENT_ID from keycloak
+    OIDCOAuthClientSecret @CLIENT_SECRET@
+
+    OIDCOAuthRemoteUserClaim sub
+
+    <LocationMatch ^/ovirt-engine/api($|/)>
+       AuthType oauth20
+       Require valid-user
+    </LocationMatch>
+</IfModule>

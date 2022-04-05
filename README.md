@@ -11,11 +11,9 @@ Welcome to the ovirt-engine-keycloak source repository.
 
 Patches are welcome!
 
-Please submit patches to [gerrit.ovirt.org:ovirt-engine-keycloak](https://gerrit.ovirt.org/#/admin/projects/ovirt-engine-keycloak).
-If you are not familiar with the review process for Gerrit patches you can read about [Working with oVirt Gerrit](https://ovirt.org/develop/dev-process/working-with-gerrit.html)
+Please submit patches to [github.com:ovirt-engine-keycloak](https://github.com/ovirt/ovirt-engine-keycloak).
+If you are not familiar with the process, you can read about [collaborating with pull requests](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests)
 on the [oVirt](https://ovirt.org/) website.
-
-**NOTE**: We might not notice pull requests that you create on Github, because we only use Github for backups.
 
 
 ### Found a bug or documentation issue?
