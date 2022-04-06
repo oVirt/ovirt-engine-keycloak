@@ -51,6 +51,27 @@
 
     OIDCOAuthRemoteUserClaim sub
 
+    # Indicate whether data in the cache backend should be encrypted.
+    # When not defined the default is "Off" for the "shm" backend and "On" for all other cache backends
+    OIDCCacheEncrypt On
+
+    # When using OIDCCacheType "shm":
+    # Specifies the maximum number of name/value pair entries that can be cached.
+    # When caching a large number of entries the cache size limit may be reached and the
+    # least recently used entry will be overwritten. If this happens within 1 hour,
+    # errors will be displayed in the error.log and the OIDCCacheShmMax value may be increased.
+    # When not specified, a default of 500 entries is used.
+    OIDCCacheShmMax 16384
+
+    # When using OIDCCacheType "shm":
+    # Specifies the maximum size for a single cache entry in bytes with a minimum of 8464 bytes.
+    # When caching large values such as numbers of attributes in a session or large metadata documents the
+    # entry size limit may be overrun, in which case errors will be displayed in the error.log
+    # and the OIDCCacheShmEntrySizeMax value has to be increased.
+    # When not specified, a default entry size of 16913 bytes (16384 value + 512 key + 17 overhead) is used.
+    OIDCCacheShmEntrySizeMax 65536
+
+
     <LocationMatch ^/ovirt-engine/api($|/)>
        AuthType oauth20
        Require valid-user
