@@ -67,7 +67,7 @@ class Const(object):
     OVIRT_ENGINE_KEYCLOAK_SSO_PROFILE = 'internalsso'
     OVIRT_ENGINE_KEYCLOAK_DB_BACKUP_PREFIX = 'keycloak'
     KEYCLOAK_ADD_USER_SCRIPT = 'add-user-keycloak.sh'
-    KEYCLOAK_CLI_ADMIN_SCRIPT = 'kcadm.sh'
+    KEYCLOAK_CLI_ADMIN_SCRIPT = '/usr/bin/timeout -k 60 120 kcadm.sh'
     OVIRT_ENGINE_KEYCLOAK_PACKAGE_NAME = 'ovirt-engine-keycloak'
     OVIRT_ENGINE_KEYCLOAK_SETUP_PACKAGE_NAME = 'ovirt-engine-keycloak-setup'
 
