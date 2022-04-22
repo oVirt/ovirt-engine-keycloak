@@ -45,6 +45,11 @@ class Plugin(plugin.PluginBase):
                 okkcons.Const.KEYCLOAK_ADD_USER_SCRIPT,
             ),
         )
+        self.environment.setdefault(
+            okkcons.ConfigEnv.KEYCLOAK_WRAPPER_SCRIPT,
+            okkcons.FileLocations.KEYCLOAK_WRAPPER_SCRIPT,
+        )
+
 
     @plugin.event(
         stage=plugin.Stages.STAGE_MISC,
@@ -77,17 +82,20 @@ class Plugin(plugin.PluginBase):
             self.execute(
                 args=(
                     self.environment[
-                        okkcons.ConfigEnv.KEYCLOAK_ADD_USER_SCRIPT
+                        okkcons.ConfigEnv.KEYCLOAK_WRAPPER_SCRIPT
                     ],
                     '-r', okkcons.Const.KEYCLOAK_MASTER_REALM,
                     '-u', self.environment[
                         oenginecons.ConfigEnv.ADMIN_USER
                     ].rsplit('@', 1)[0],
-                     '--sc', okkcons.FileLocations.OVIRT_ENGINE_CONFIG_DIR,
-                     '-p', password,
+                    '--sc', okkcons.FileLocations.OVIRT_ENGINE_CONFIG_DIR,
                 ),
                 envAppend={
                     'JAVA_OPTS': '-Dcom.redhat.fips=false',
+                    'ADMIN_PASSWORD': password,
+                    'KK_TOOL': self.environment[
+                        okkcons.ConfigEnv.KEYCLOAK_ADD_USER_SCRIPT
+                    ]
                 },
             )
             os.chown(

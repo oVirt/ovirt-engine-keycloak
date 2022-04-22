@@ -157,6 +157,7 @@ class ConfigEnv(object):
 
     KEYCLOAK_ADD_USER_SCRIPT = 'OVESETUP_KEYCLOAK_CONFIG/addUserKeycloakScript'
     KEYCLOAK_CLI_ADMIN_SCRIPT = 'OVESETUP_KEYCLOAK_CONFIG/kcadmScript'
+    KEYCLOAK_WRAPPER_SCRIPT = 'OVESETUP_KEYCLOAK_CONFIG/kkWrapperScript'
     KEYCLOAK_AUTH_URL = 'OVESETUP_KEYCLOAK_CONFIG/authUrl'
     KEYCLOAK_TOKEN_URL = 'OVESETUP_KEYCLOAK_CONFIG/tokenUrl'
     KEYCLOAK_USERINFO_URL = 'OVESETUP_KEYCLOAK_CONFIG/userinfoUrl'
@@ -336,6 +337,12 @@ class FileLocations(oesetupcons.FileLocations):
         PKG_DATA_DIR,
         'conf',
         'internalsso-openidc.conf.in',
+    )
+
+    KEYCLOAK_WRAPPER_SCRIPT = os.path.join(
+        PKG_DATA_DIR,
+        'bin',
+        'kk_cli.sh'
     )
 
     OVIRT_ENGINE_SERVICE_CONFIG_KEYCLOAK = os.path.join(

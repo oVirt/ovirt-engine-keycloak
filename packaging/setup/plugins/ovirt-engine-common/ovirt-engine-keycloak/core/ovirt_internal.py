@@ -49,6 +49,10 @@ class Plugin(plugin.PluginBase):
                 okkcons.Const.KEYCLOAK_CLI_ADMIN_SCRIPT,
             ),
         )
+        self.environment.setdefault(
+            okkcons.ConfigEnv.KEYCLOAK_WRAPPER_SCRIPT,
+            okkcons.FileLocations.KEYCLOAK_WRAPPER_SCRIPT,
+        )
 
     @plugin.event(
         stage=plugin.Stages.STAGE_CLOSEUP,
@@ -154,10 +158,15 @@ class Plugin(plugin.PluginBase):
             okkcons.Const.KEYCLOAK_WEB_CONTEXT,
         )
 
+        envs = self.KCADM_ENV.copy()
+        envs['ADMIN_PASSWORD'] = passwd
+        envs['KK_TOOL'] = self.environment[
+            okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+        ]
         self.execute(
             args=(
                 self.environment[
-                    okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                    okkcons.ConfigEnv.KEYCLOAK_WRAPPER_SCRIPT
                 ],
                 'config',
                 'credentials',
@@ -167,8 +176,7 @@ class Plugin(plugin.PluginBase):
                     oenginecons.ConfigEnv.ADMIN_USER
                 ].rsplit('@', 1)[0],
             ),
-            stdin=[passwd, ''],
-            envAppend=self.KCADM_ENV,
+            envAppend=envs
         )
 
     def _setup_realm(self):
@@ -209,12 +217,19 @@ class Plugin(plugin.PluginBase):
         cid = self._get_client_id(
             client_id_name=okkcons.Const.KEYCLOAK_INTERNAL_CLIENT_NAME
         )
-
+        envs = self.KCADM_ENV.copy()
+        envs['CLIENT_SECRET'] = self.environment[
+            okkcons.ConfigEnv
+                .KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET
+        ]
+        envs['KK_TOOL']=self.environment[
+            okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+        ]
         if cid is None:
             rc, stdout, stderr = self.execute(
                 (
                     self.environment[
-                        okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                        okkcons.ConfigEnv.KEYCLOAK_WRAPPER_SCRIPT
                     ],
                     'create',
                     'clients',
@@ -224,15 +239,9 @@ class Plugin(plugin.PluginBase):
                         okkcons.Const.KEYCLOAK_INTERNAL_CLIENT_NAME
                     ),
                     '-s', 'clientAuthenticatorType=client-secret',
-                    '-s', 'secret={}'.format(
-                        self.environment[
-                            okkcons.ConfigEnv
-                            .KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET
-                        ]
-                    ),
                     '-i',
                 ),
-                envAppend=self.KCADM_ENV,
+                envAppend=envs,
             )
             cid = self._results(rc, stdout)
 
@@ -424,17 +433,21 @@ class Plugin(plugin.PluginBase):
             admin_user_id = self._results(rc, stdout)
 
         # set admin password
+        envs = self.KCADM_ENV.copy()
+        envs['USER_NEW_PASSWORD'] = password
+        envs['KK_TOOL']=self.environment[
+            okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+        ]
         self.execute(
             args=(
                 self.environment[
-                    okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
+                    okkcons.ConfigEnv.KEYCLOAK_WRAPPER_SCRIPT
                 ],
                 'set-password',
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                 '--username', okkcons.Const.OVIRT_ADMIN_USER,
             ),
-            stdin=[password, ''],
-            envAppend=self.KCADM_ENV,
+            envAppend=envs,
         )
 
         # assign admin to ovirt-administrator group
