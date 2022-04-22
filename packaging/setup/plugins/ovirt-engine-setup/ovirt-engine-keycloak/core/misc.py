@@ -38,6 +38,7 @@ class Plugin(plugin.PluginBase):
             oenginecons.Stages.OVN_PROVIDER_CREDENTIALS_CUSTOMIZATION,
         ),
         after=(
+            oenginecons.Stages.CORE_ENABLE,
             osetupcons.Stages.DIALOG_TITLES_S_PRODUCT_OPTIONS,
         ),
         condition=lambda self: (
