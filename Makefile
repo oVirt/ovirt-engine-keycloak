@@ -153,6 +153,7 @@ install-packaging-files: \
 		$(NULL)
 	$(MAKE) copy-recursive SOURCEDIR=packaging/setup TARGETDIR="$(DESTDIR)$(PKG_DATA_DIR)/../ovirt-engine/setup" EXCLUDE_GEN="$(GENERATED)"
 	$(MAKE) copy-recursive SOURCEDIR=packaging/conf TARGETDIR="$(DESTDIR)$(PKG_DATA_DIR)/conf" EXCLUDE_GEN="$(GENERATED)"
+	$(MAKE) copy-recursive SOURCEDIR=packaging/bin TARGETDIR="$(DESTDIR)$(PKG_DATA_DIR)/bin" EXCLUDE_GEN="$(GENERATED)"
 
 install-layout:
 	install -dm 755 "$(DESTDIR)$(PKG_STATE_DIR)/backups" \
