@@ -37,6 +37,11 @@ class Plugin(plugin.PluginBase):
     )
     def _boot(self):
         self.environment[
+            osetupcons.CoreEnv.SETUP_ATTRS_MODULES
+        ].append(
+            okkcons,
+        )
+        self.environment[
             otopicons.CoreEnv.LOG_FILTER_KEYS
         ].append(
             "QUESTION/1/OVESETUP_CONFIG_ADMIN_SETUP"
@@ -46,18 +51,6 @@ class Plugin(plugin.PluginBase):
         ].append(
             "QUESTION/2/OVESETUP_CONFIG_ADMIN_SETUP"
         )
-
-
-    @plugin.event(
-        stage=plugin.Stages.STAGE_INIT,
-    )
-    def _init(self):
-        self.environment[
-            osetupcons.CoreEnv.SETUP_ATTRS_MODULES
-        ].append(
-            okkcons,
-        )
-
 
     @plugin.event(
         stage=plugin.Stages.STAGE_SETUP,
