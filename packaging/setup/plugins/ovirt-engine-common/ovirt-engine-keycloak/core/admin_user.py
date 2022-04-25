@@ -11,6 +11,7 @@
 import datetime
 import gettext
 import os
+import tempfile
 
 from otopi import plugin
 from otopi import util
@@ -32,6 +33,7 @@ class Plugin(plugin.PluginBase):
 
     def __init__(self, context):
         super(Plugin, self).__init__(context=context)
+        self._tmp_dir = None
 
     @plugin.event(
         stage=plugin.Stages.STAGE_SETUP,
@@ -78,6 +80,13 @@ class Plugin(plugin.PluginBase):
             # proper datetime based suffix make place for newly created
             # add user config file
             self._safely_keep_existing_user_json_file()
+
+            # prepare safe temporary directory
+            self._tmp_dir = tempfile.TemporaryDirectory(
+                dir=okkcons.FileLocations.OVIRT_ENGINE_CONFIG_DIR,
+                prefix="keycloak"
+            )
+
             # TODO handle upgrade
             self.execute(
                 args=(
@@ -88,7 +97,7 @@ class Plugin(plugin.PluginBase):
                     '-u', self.environment[
                         oenginecons.ConfigEnv.ADMIN_USER
                     ].rsplit('@', 1)[0],
-                    '--sc', okkcons.FileLocations.OVIRT_ENGINE_CONFIG_DIR,
+                    '--sc', self._tmp_dir.name,
                 ),
                 envAppend={
                     'JAVA_OPTS': '-Dcom.redhat.fips=false',
@@ -98,19 +107,17 @@ class Plugin(plugin.PluginBase):
                     ]
                 },
             )
-            os.chown(
-                okkcons.FileLocations.KEYCLOAK_ADD_INITIAL_ADMIN_FILE,
-                osetuputil.getUid(
-                    self.environment[osetupcons.SystemEnv.USER_ENGINE],
-                ),
-                osetuputil.getGid(
-                    self.environment[osetupcons.SystemEnv.GROUP_ENGINE],
-                ),
+
+            new_user_json = os.path.join(
+                self._tmp_dir.name,
+                okkcons.Const.KEYCLOAK_ADD_USER_JSON,
             )
-            os.chmod(
-                okkcons.FileLocations.KEYCLOAK_ADD_INITIAL_ADMIN_FILE,
-                0o600
+
+            self._set_permissions(
+                new_user_json=new_user_json,
+                environment=self.environment,
             )
+            os.rename(new_user_json, okkcons.FileLocations.KEYCLOAK_ADD_INITIAL_ADMIN_FILE)
             self.environment[oengcommcons.ApacheEnv.NEED_RESTART] = True
         else:
             self.logger.info(_('Not creating initial Keycloak admin user '
@@ -131,6 +138,22 @@ class Plugin(plugin.PluginBase):
                 okkcons.FileLocations.KEYCLOAK_ADD_INITIAL_ADMIN_FILE,
                 backup_file
             )
+
+    @staticmethod
+    def _set_permissions(new_user_json, environment):
+        os.chown(
+            new_user_json,
+            osetuputil.getUid(
+                environment[osetupcons.SystemEnv.USER_ENGINE],
+            ),
+            osetuputil.getGid(
+                environment[osetupcons.SystemEnv.GROUP_ENGINE],
+            ),
+        )
+        os.chmod(
+            new_user_json,
+            0o600
+        )
 
 
 # vim: expandtab tabstop=4 shiftwidth=4

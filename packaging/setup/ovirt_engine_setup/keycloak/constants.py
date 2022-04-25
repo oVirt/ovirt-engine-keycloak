@@ -67,6 +67,7 @@ class Const(object):
     OVIRT_ENGINE_KEYCLOAK_SSO_PROFILE = 'internalsso'
     OVIRT_ENGINE_KEYCLOAK_DB_BACKUP_PREFIX = 'keycloak'
     KEYCLOAK_ADD_USER_SCRIPT = 'add-user-keycloak.sh'
+    KEYCLOAK_ADD_USER_JSON = 'keycloak-add-user.json'
     KEYCLOAK_CLI_ADMIN_SCRIPT = 'kcadm.sh'
     OVIRT_ENGINE_KEYCLOAK_PACKAGE_NAME = 'ovirt-engine-keycloak'
     OVIRT_ENGINE_KEYCLOAK_SETUP_PACKAGE_NAME = 'ovirt-engine-keycloak-setup'
@@ -373,7 +374,7 @@ class FileLocations(oesetupcons.FileLocations):
 
     KEYCLOAK_ADD_INITIAL_ADMIN_FILE = os.path.join(
         OVIRT_ENGINE_CONFIG_DIR,
-        "keycloak-add-user.json",
+        Const.KEYCLOAK_ADD_USER_JSON,
     )
 
     OVIRT_ENGINE_DEFAULT_KEYCLOAK_DB_BACKUP_DIR = os.path.join(
