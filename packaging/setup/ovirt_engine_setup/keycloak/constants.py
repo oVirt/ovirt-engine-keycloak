@@ -281,7 +281,6 @@ class ProvisioningEnv(object):
     @osetupattrs(
         answerfile=True,
         summary=True,
-        is_secret=True,
         description=_('Configure local Keycloak database'),
     )
     def POSTGRES_PROVISIONING_ENABLED(self):
