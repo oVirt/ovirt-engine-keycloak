@@ -16,6 +16,7 @@ import time
 from otopi import plugin
 from otopi import util
 
+from ovirt_engine import service
 from ovirt_engine_setup import constants as osetupcons
 from ovirt_engine_setup.engine import constants as oenginecons
 from ovirt_engine_setup.engine_common import constants as oengcommcons
@@ -36,6 +37,8 @@ class Plugin(plugin.PluginBase):
 
     def __init__(self, context):
         super(Plugin, self).__init__(context=context)
+        self._tempDir = None
+        self._tempKcadmConfigPath = None
 
     @plugin.event(
         stage=plugin.Stages.STAGE_SETUP,
@@ -53,6 +56,16 @@ class Plugin(plugin.PluginBase):
             okkcons.ConfigEnv.KEYCLOAK_WRAPPER_SCRIPT,
             okkcons.FileLocations.KEYCLOAK_WRAPPER_SCRIPT,
         )
+        # prepare safe temporary directory
+        self._tempDir = service.TempDir()
+        self._tempDir.create()
+        self._tempKcadmConfigPath=os.path.join(
+            self._tempDir.directory,
+            'kcadm.config'
+        )
+        self.logger.debug(_(
+            f"Keycloak kcadm temporary config at: {self._tempKcadmConfigPath}"
+        ))
 
     @plugin.event(
         stage=plugin.Stages.STAGE_CLOSEUP,
@@ -142,6 +155,7 @@ class Plugin(plugin.PluginBase):
                 ],
                 'config',
                 'truststore',
+                '--config', self._tempKcadmConfigPath,
                 '--trustpass', oenginecons.Const.PKI_PASSWORD,
                 oenginecons.FileLocations.OVIRT_ENGINE_PKI_ENGINE_TRUST_STORE
             ),
@@ -170,6 +184,7 @@ class Plugin(plugin.PluginBase):
                 ],
                 'config',
                 'credentials',
+                '--config', self._tempKcadmConfigPath,
                 '--server', 'https://{}'.format(keycloak_server_url),
                 '--realm', okkcons.Const.KEYCLOAK_MASTER_REALM,
                 '--user', self.environment[
@@ -192,6 +207,7 @@ class Plugin(plugin.PluginBase):
                     ],
                     'create',
                     'realms',
+                    '--config', self._tempKcadmConfigPath,
                     '-s', 'realm=%s' % okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                     '-s', 'enabled=true',
                     '-i'
@@ -207,6 +223,7 @@ class Plugin(plugin.PluginBase):
                     ],
                     'update',
                     'realms/%s' % okkcons.Const.KEYCLOAK_INTERNAL_REALM,
+                    '--config', self._tempKcadmConfigPath,
                     '-s', 'enabled=true',
                 ),
                 envAppend=self.KCADM_ENV,
@@ -233,6 +250,7 @@ class Plugin(plugin.PluginBase):
                     ],
                     'create',
                     'clients',
+                    '--config', self._tempKcadmConfigPath,
                     '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                     '-s', 'enabled=true',
                     '-s', 'clientId={}'.format(
@@ -257,6 +275,7 @@ class Plugin(plugin.PluginBase):
                 ],
                 'update',
                 'clients/{}'.format(cid),
+                '--config', self._tempKcadmConfigPath,
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                 '-s', 'directAccessGrantsEnabled=true',
                 '-s', 'rootUrl=https://{}'.format(engine_host),
@@ -283,6 +302,7 @@ class Plugin(plugin.PluginBase):
                     ],
                     'create',
                     'client-scopes',
+                    '--config', self._tempKcadmConfigPath,
                     '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                     '-s', 'name={}'.format(scope_name),
                     '-s', 'protocol=openid-connect',
@@ -298,6 +318,7 @@ class Plugin(plugin.PluginBase):
                     okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
                 ],
                 'update',
+                '--config', self._tempKcadmConfigPath,
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                 "clients/{client_id}/optional-client-scopes/{client_scope_id}"
                 .format(
@@ -321,6 +342,7 @@ class Plugin(plugin.PluginBase):
                     ],
                     'create',
                     'clients/{}/protocol-mappers/models'.format(client_id),
+                    '--config', self._tempKcadmConfigPath,
                     '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                     '-s', 'name=username',
                     '-s', 'protocol=openid-connect',
@@ -348,6 +370,7 @@ class Plugin(plugin.PluginBase):
                     ],
                     'create',
                     'clients/{}/protocol-mappers/models'.format(client_id),
+                    '--config', self._tempKcadmConfigPath,
                     '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                     '-s', 'name=groups',
                     '-s', 'protocol=openid-connect',
@@ -374,6 +397,7 @@ class Plugin(plugin.PluginBase):
                     ],
                     'create',
                     f'clients/{client_id}/protocol-mappers/models',
+                    '--config', self._tempKcadmConfigPath,
                     '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                     '-s', 'name=realm role',
                     '-s', 'protocol=openid-connect',
@@ -401,6 +425,7 @@ class Plugin(plugin.PluginBase):
                     ],
                     'create',
                     'groups',
+                    '--config', self._tempKcadmConfigPath,
                     '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                     '-s', 'name={}'.format(
                         okkcons.Const.OVIRT_ADMINISTRATOR_USER_GROUP_NAME
@@ -422,6 +447,7 @@ class Plugin(plugin.PluginBase):
                     ],
                     'create',
                     'users',
+                    '--config', self._tempKcadmConfigPath,
                     '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                     '-s', f'username={okkcons.Const.OVIRT_ADMIN_USER}',
                     '-s', f'email={okkcons.Const.OVIRT_ADMIN_USER_EMAIL}',
@@ -444,6 +470,7 @@ class Plugin(plugin.PluginBase):
                     okkcons.ConfigEnv.KEYCLOAK_WRAPPER_SCRIPT
                 ],
                 'set-password',
+                '--config', self._tempKcadmConfigPath,
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                 '--username', okkcons.Const.OVIRT_ADMIN_USER,
             ),
@@ -461,6 +488,7 @@ class Plugin(plugin.PluginBase):
                     user_id=admin_user_id,
                     group_id=administrator_group_id,
                 ),
+                '--config', self._tempKcadmConfigPath,
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                 '-s', 'realm={}'.format(okkcons.Const.KEYCLOAK_INTERNAL_REALM),
                 '-s', 'userId={}'.format(admin_user_id),
@@ -480,6 +508,7 @@ class Plugin(plugin.PluginBase):
                     ],
                     'create',
                     'roles',
+                    '--config', self._tempKcadmConfigPath,
                     '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                     '-s', f"name={name}",
                     '-s', f"description={description}",
@@ -497,6 +526,7 @@ class Plugin(plugin.PluginBase):
                     okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
                 ],
                 'get-roles',
+                '--config', self._tempKcadmConfigPath,
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                 '--uusername', username,
                 '--rolename', role_name
@@ -511,6 +541,7 @@ class Plugin(plugin.PluginBase):
                     okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
                 ],
                 'get-roles',
+                '--config', self._tempKcadmConfigPath,
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                 '--fields', 'id,name',
             ),
@@ -529,6 +560,7 @@ class Plugin(plugin.PluginBase):
                 ],
                 'get',
                 'users',
+                '--config', self._tempKcadmConfigPath,
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                 '--fields', 'id,username',
             ),
@@ -547,6 +579,7 @@ class Plugin(plugin.PluginBase):
                 ],
                 'get',
                 'clients',
+                '--config', self._tempKcadmConfigPath,
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                 '--fields', 'id,clientId',
             ),
@@ -566,6 +599,7 @@ class Plugin(plugin.PluginBase):
                 ],
                 'get',
                 'realms',
+                '--config', self._tempKcadmConfigPath,
                 '--fields', 'id,realm',
             ),
             envAppend=self.KCADM_ENV,
@@ -584,6 +618,7 @@ class Plugin(plugin.PluginBase):
                 ],
                 'get',
                 'client-scopes',
+                '--config', self._tempKcadmConfigPath,
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                 '--fields', 'id,name',
             ),
@@ -603,6 +638,7 @@ class Plugin(plugin.PluginBase):
                 ],
                 'get',
                 'clients/{}/protocol-mappers/models'.format(client_id),
+                '--config', self._tempKcadmConfigPath,
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                 '--fields', 'id,name',
             ),
@@ -622,6 +658,7 @@ class Plugin(plugin.PluginBase):
                 ],
                 'get',
                 'groups',
+                '--config', self._tempKcadmConfigPath,
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                 '--fields', 'id,name',
             ),
@@ -675,6 +712,13 @@ class Plugin(plugin.PluginBase):
                 ].rsplit('@', 1)[0],
             ),
         )
+
+    @plugin.event(
+        stage=plugin.Stages.STAGE_CLEANUP
+    )
+    def _clenup(self):
+        if self._tempDir:
+            self._tempDir.destroy()
 
 
 # vim: expandtab tabstop=4 shiftwidth=4
