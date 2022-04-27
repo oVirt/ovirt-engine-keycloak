@@ -129,7 +129,9 @@ class Plugin(plugin.PluginBase):
                     description=f"Grafana '{role}' role"
                 )
             self._assign_role_to_user(
-                username=okkcons.Const.OVIRT_ADMIN_USER,
+                username=self.environment[
+                    okkcons.ConfigEnv.OVIRT_ADMIN_USER
+                ],
                 role_name=okkcons.Const.GRAFANA_ADMIN_ROLE
             )
             self.logger.info('Done with setting up Keycloak for Ovirt Engine')
@@ -413,7 +415,8 @@ class Plugin(plugin.PluginBase):
         return group_id
 
     def _setup_internal_admin_user(self, password, administrator_group_id):
-        admin_user_id = self._get_user_id(okkcons.Const.OVIRT_ADMIN_USER)
+        ovirt_admin_user = self.environment[okkcons.ConfigEnv.OVIRT_ADMIN_USER]
+        admin_user_id = self._get_user_id(ovirt_admin_user)
         if admin_user_id is None:
             rc, stdout, stderr = self.execute(
                 (
@@ -423,7 +426,7 @@ class Plugin(plugin.PluginBase):
                     'create',
                     'users',
                     '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
-                    '-s', f'username={okkcons.Const.OVIRT_ADMIN_USER}',
+                    '-s', f'username={ovirt_admin_user}',
                     '-s', f'email={okkcons.Const.OVIRT_ADMIN_USER_EMAIL}',
                     '-s', 'enabled=true',
                     '-i',
@@ -445,7 +448,7 @@ class Plugin(plugin.PluginBase):
                 ],
                 'set-password',
                 '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
-                '--username', okkcons.Const.OVIRT_ADMIN_USER,
+                '--username', ovirt_admin_user,
             ),
             envAppend=envs,
         )
@@ -669,7 +672,7 @@ class Plugin(plugin.PluginBase):
                 "Please use the user '{user}' and password specified in "
                 "order to login using Keycloak SSO"
             ).format(
-                user=okkcons.Const.OVIRT_ADMIN_USER,
+                user=self.environment[okkcons.ConfigEnv.OVIRT_ADMIN_USER],
                 keycloakadmin=self.environment[
                     oenginecons.ConfigEnv.ADMIN_USER
                 ].rsplit('@', 1)[0],

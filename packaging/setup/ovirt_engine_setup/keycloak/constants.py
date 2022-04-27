@@ -156,6 +156,18 @@ class ConfigEnv(object):
     def ADMIN_PASSWORD(self):
         return 'OVESETUP_KEYCLOAK_CONFIG/adminPassword'
 
+    @osetupattrs(
+        postinstallfile=True,
+    )
+    def OVIRT_ADMIN_USER(self):
+        return 'OVESETUP_KEYCLOAK_CONFIG/ovirtAdminUser'
+
+    @osetupattrs(
+        postinstallfile=True,
+    )
+    def OVIRT_ADMIN_USER_WITH_PROFILE(self):
+        return 'OVESETUP_KEYCLOAK_CONFIG/ovirtAdminUserWithProfile'
+
     KEYCLOAK_ADD_USER_SCRIPT = 'OVESETUP_KEYCLOAK_CONFIG/addUserKeycloakScript'
     KEYCLOAK_CLI_ADMIN_SCRIPT = 'OVESETUP_KEYCLOAK_CONFIG/kcadmScript'
     KEYCLOAK_WRAPPER_SCRIPT = 'OVESETUP_KEYCLOAK_CONFIG/kkWrapperScript'

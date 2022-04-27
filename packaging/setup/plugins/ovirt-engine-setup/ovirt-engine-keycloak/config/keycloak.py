@@ -52,6 +52,21 @@ class Plugin(plugin.PluginBase):
             None,
         )
 
+        self.environment.setdefault(
+            okkcons.ConfigEnv.OVIRT_ADMIN_USER,
+            okkcons.Const.OVIRT_ADMIN_USER
+        )
+
+        keycloak_admin_with_profile = \
+            '{user}@{profile}'.format(
+                user=okkcons.Const.OVIRT_ADMIN_USER,
+                profile=okkcons.Const.OVIRT_ENGINE_KEYCLOAK_SSO_PROFILE,
+            )
+        self.environment.setdefault(
+            okkcons.ConfigEnv.OVIRT_ADMIN_USER_WITH_PROFILE,
+            keycloak_admin_with_profile
+        )
+
     @plugin.event(
         stage=plugin.Stages.STAGE_CUSTOMIZATION,
         name=okkcons.Stages.KEYCLOAK_CREDENTIALS_SETUP,
@@ -100,15 +115,11 @@ class Plugin(plugin.PluginBase):
                 ),
             )
         self.environment[okkcons.ConfigEnv.ADMIN_PASSWORD] = password
-        keycloak_ovn_admin = \
-            '{user}@{profile}'.format(
-                user=okkcons.Const.OVIRT_ADMIN_USER,
-                profile=okkcons.Const.OVIRT_ENGINE_KEYCLOAK_SSO_PROFILE,
-            )
         self.environment[
             oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_ADMIN_USER
-        ] = keycloak_ovn_admin
-
+        ] = self.environment[
+            okkcons.ConfigEnv.OVIRT_ADMIN_USER_WITH_PROFILE
+        ]
         self.environment[
             oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_ADMIN_PASSWD
         ] = password
