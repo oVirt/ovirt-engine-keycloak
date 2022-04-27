@@ -103,8 +103,8 @@ class Plugin(plugin.PluginBase):
                     default=True,
                 )
 
-            self.environment[oengcommcons.KeycloakEnv.KEYCLOAK_ENABLED] = \
-                self.environment[okkcons.CoreEnv.ENABLE]
+        self.environment[oengcommcons.KeycloakEnv.KEYCLOAK_ENABLED] = \
+            self.environment[okkcons.CoreEnv.ENABLE]
 
 
 # vim: expandtab tabstop=4 shiftwidth=4
