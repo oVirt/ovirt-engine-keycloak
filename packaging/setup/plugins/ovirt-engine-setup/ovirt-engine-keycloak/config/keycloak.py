@@ -115,14 +115,6 @@ class Plugin(plugin.PluginBase):
                 ),
             )
         self.environment[okkcons.ConfigEnv.ADMIN_PASSWORD] = password
-        self.environment[
-            oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_ADMIN_USER
-        ] = self.environment[
-            okkcons.ConfigEnv.OVIRT_ADMIN_USER_WITH_PROFILE
-        ]
-        self.environment[
-            oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_ADMIN_PASSWD
-        ] = password
 
     @plugin.event(
         stage=plugin.Stages.STAGE_MISC,
@@ -157,6 +149,7 @@ class Plugin(plugin.PluginBase):
         name=okkcons.Stages.CLIENT_SECRET_GENERATED,
         condition=lambda self: (
             self.environment[okkcons.CoreEnv.ENABLE] and
+            self.environment[okkcons.DBEnv.NEW_DATABASE] and
             not self.environment[
                 okkcons.ConfigEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET
             ]

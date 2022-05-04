@@ -53,13 +53,7 @@ class Plugin(plugin.PluginBase):
             okkcons.CoreEnv.ENABLE
         ] is None
 
-        reconfiguration = not self.environment[
-            oenginecons.EngineDBEnv.NEW_DATABASE
-        ] and self.environment[
-            okkcons.CoreEnv.ENABLE
-        ] is not None
-
-        if first_installation or reconfiguration:
+        if first_installation:
             self.dialog.note(
                 text=_(
                     '\n* Please note * : Keycloak is now deprecating '
@@ -103,8 +97,8 @@ class Plugin(plugin.PluginBase):
                     default=True,
                 )
 
-            self.environment[oengcommcons.KeycloakEnv.KEYCLOAK_ENABLED] = \
-                self.environment[okkcons.CoreEnv.ENABLE]
+        self.environment[oengcommcons.KeycloakEnv.KEYCLOAK_ENABLED] = \
+            self.environment[okkcons.CoreEnv.ENABLE]
 
 
 # vim: expandtab tabstop=4 shiftwidth=4

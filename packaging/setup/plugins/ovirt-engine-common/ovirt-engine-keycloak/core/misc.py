@@ -69,15 +69,21 @@ class Plugin(plugin.PluginBase):
         stage=plugin.Stages.STAGE_INIT,
     )
     def _init(self):
-        config = configfile.ConfigFile([
-            okkcons.FileLocations.OVIRT_ENGINE_SERVICE_CONFIG_KEYCLOAK,
-        ])
+        self.environment.setdefault(
+            okkcons.CoreEnv.ENABLE,
+            None
+        )
 
-        if config.get('KEYCLOAK_BUNDLED') is not None:
-            self.environment.setdefault(okkcons.CoreEnv.ENABLE,
-                                        config.getboolean('KEYCLOAK_BUNDLED'))
-        else:
-            self.environment.setdefault(okkcons.CoreEnv.ENABLE, None)
+        if self.environment[okkcons.CoreEnv.ENABLE] is None:
+            config = configfile.ConfigFile([
+                okkcons.FileLocations.OVIRT_ENGINE_SERVICE_CONFIG_KEYCLOAK,
+            ])
+
+            if config.get('KEYCLOAK_BUNDLED') is not None:
+                self.environment.setdefault(
+                    okkcons.CoreEnv.ENABLE,
+                    config.getboolean('KEYCLOAK_BUNDLED')
+                )
 
 
 # vim: expandtab tabstop=4 shiftwidth=4
