@@ -46,7 +46,6 @@ class Plugin(plugin.PluginBase):
         ),
         condition=lambda self: (
             self.environment[okkcons.CoreEnv.ENABLE] and
-            self.environment[okkcons.DBEnv.NEW_DATABASE] and
             self.environment[okkcons.DBEnv.PASSWORD] is not None
         ),
     )
