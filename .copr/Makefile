@@ -5,6 +5,11 @@
 installdeps:
 	dnf -y install coreutils curl dnf-utils findutils git rpmdevtools sed
 
-srpm: installdeps
+# explicity mark the copr generated git repo directory (which is done prior to the mock
+# call to the make_srpm and will be the current pwd) as safe for git commands
+git-safe:
+	git config --global --add safe.directory "$(shell pwd)"
+
+srpm: installdeps git-safe
 	.automation/build-srpm.sh
 	cp rpmbuild/SRPMS/$(shell sh -c "basename '$(spec)'|cut -f1 -d.")*.src.rpm $(outdir)
