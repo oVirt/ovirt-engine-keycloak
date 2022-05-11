@@ -73,6 +73,12 @@ make %{make_common_opts}
 rm -fr "%{buildroot}"
 make %{make_common_opts} install DESTDIR=%{buildroot}
 
+# Compile python files
+%py_byte_compile %{__python3} %{buildroot}%{_libexecdir}/
+%py_byte_compile %{__python3} %{buildroot}%{ovirt_engine_data}/
+
+%{__python3} -m compileall -f -q -d "%{python3_sitelib}" "%{buildroot}%{python3_sitelib}"
+%{__python3} -O -m compileall -f -q -d "%{python3_sitelib}" "%{buildroot}%{python3_sitelib}"
 
 # /var creation
 install -dm 755 "%{buildroot}/%{_localstatedir}/lib/ovirt-engine-keycloak"
