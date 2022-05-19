@@ -33,13 +33,13 @@ class Plugin(plugin.PluginBase):
         after=(
             okkcons.Stages.CORE_ENABLE,
         ),
-        condition=lambda self: (
-            self.environment[okkcons.CoreEnv.ENABLE]
-        )
     )
     def _customize(self):
-        self.environment[ogdwhcons.KeycloakEnv.KEYCLOAK_ENABLED] = \
-            self.environment[okkcons.CoreEnv.ENABLE]
+        if (self.environment[okkcons.CoreEnv.ENABLE] is True and
+                self.environment[okkcons.DBEnv.NEW_DATABASE] is True):
+            self.environment[ogdwhcons.KeycloakEnv.KEYCLOAK_ENABLED] = True
+        else:
+            self.environment[ogdwhcons.KeycloakEnv.KEYCLOAK_ENABLED] = False
 
     @plugin.event(
         stage=plugin.Stages.STAGE_MISC,
