@@ -91,6 +91,7 @@ unzip -d %{buildroot}%{_datadir}/%{name} @KEYCLOAK_OVERLAY_ZIP@
 # install Readme
 install -d -m 0755 "%{buildroot}%{_docdir}/%{name}"
 install -m 0644 "%{_builddir}/%{name}-%{version}/README.md" "%{buildroot}%{_docdir}/%{name}/README.md"
+install -m 0644 "%{_builddir}/%{name}-%{version}/keycloak_usage.md" "%{buildroot}%{_docdir}/%{name}/keycloak_usage.md"
 
 # prepare sym links from ovirt-engine-wildfly to relevant ovirt-engine-keycloak artifacts
 # that is required because keycloak overlay is supposed to be extracted inside Wildfly/EAP location

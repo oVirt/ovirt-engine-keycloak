@@ -4,6 +4,8 @@
 
 Welcome to the ovirt-engine-keycloak source repository.
 
+## Documentation
+* [oVirt internal Keycloak usage scenarios](keycloak_usage.md)
 
 ## How to contribute
 
