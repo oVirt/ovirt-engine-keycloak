@@ -163,7 +163,6 @@ class Plugin(plugin.PluginBase):
                     dbenvkeys=okkcons.Const.KEYCLOAK_DB_ENV_KEYS,
                 )
                 dbovirtutils.tryDatabaseConnect(dbenv)
-                self.logger.info("connected to keycloak db")
                 self.environment.update(dbenv)
                 self.environment[
                     okkcons.DBEnv.NEW_DATABASE
