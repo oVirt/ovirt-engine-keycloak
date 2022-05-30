@@ -59,8 +59,8 @@ class Plugin(plugin.PluginBase):
             okkcons.Stages.KEYCLOAK_CREDENTIALS_SETUP,
         ),
         condition=lambda self: (
-            self.environment[okkcons.CoreEnv.ENABLE] and
-            self.environment[okkcons.DBEnv.NEW_DATABASE] and
+            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
+            not self.environment[oengcommcons.KeycloakEnv.CONFIGURED] and
             self.environment[
                 oenginecons.EngineDBEnv.JUST_RESTORED
             ] is not True and
@@ -70,7 +70,7 @@ class Plugin(plugin.PluginBase):
         ),
     )
     def _create_admin(self):
-        password = self.environment[okkcons.ConfigEnv.ADMIN_PASSWORD]
+        password = self.environment[oengcommcons.KeycloakEnv.ADMIN_PASSWORD]
         if password:
             self.logger.info(_('Creating initial Keycloak admin user'))
             # TODO consider using transaction

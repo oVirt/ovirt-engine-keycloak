@@ -50,9 +50,25 @@ class Plugin(plugin.PluginBase):
         first_installation = self.environment[
             oenginecons.EngineDBEnv.NEW_DATABASE
         ] and self.environment[
-            okkcons.CoreEnv.ENABLE
+            oengcommcons.KeycloakEnv.ENABLE
         ] is None
 
+        # Notice: this condition is not ready
+        # for --reconfigure-optional-components
+        # because of the following scenario
+        # There is already existing oVirt environment
+        # ( < 4.5.1 ). In this case ENABLE flag is None,
+        # CONFIGURED is None and
+        # oenginecons.EngineDBEnv.NEW_DATABASE is False
+        # We cannot here drop NEW_DATABASE condition becuase
+        # the requirement is not to even ask for keycloak
+        # in case of upgrading from non-keycloak existing
+        # oVirt installation.
+        # In order to enforce keycloak activation use:
+        #
+        # $ engine-setup \
+        #    --otopi-environment="OVESETUP_CONFIG/keycloakEnable=bool:True"
+        #
         if first_installation:
             self.dialog.note(
                 text=_(
@@ -63,7 +79,7 @@ class Plugin(plugin.PluginBase):
                 )
             )
             self.environment[
-                okkcons.CoreEnv.ENABLE
+                oengcommcons.KeycloakEnv.ENABLE
             ] = dialog.queryBoolean(
                 dialog=self.dialog,
                 name='OVESETUP_KEYCLOAK_ENABLE',
@@ -76,16 +92,16 @@ class Plugin(plugin.PluginBase):
 
             )
 
-            if not self.environment[okkcons.CoreEnv.ENABLE]:
+            if not self.environment[oengcommcons.KeycloakEnv.ENABLE]:
                 self.dialog.note(
                     text=_(
                         '\nAre you really sure not to install '
-                        'internal Keycloak based authentication? ' 
+                        'internal Keycloak based authentication? '
                         '\nAAA modules are being deprecated '
                     )
                 )
                 self.environment[
-                    okkcons.CoreEnv.ENABLE
+                    oengcommcons.KeycloakEnv.ENABLE
                 ] = dialog.queryBoolean(
                     dialog=self.dialog,
                     name='OVESETUP_KEYCLOAK_ENABLE',
@@ -96,9 +112,6 @@ class Plugin(plugin.PluginBase):
                     prompt=True,
                     default=True,
                 )
-
-        self.environment[oengcommcons.KeycloakEnv.KEYCLOAK_ENABLED] = \
-            self.environment[okkcons.CoreEnv.ENABLE]
 
 
 # vim: expandtab tabstop=4 shiftwidth=4

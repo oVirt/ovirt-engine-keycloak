@@ -75,8 +75,8 @@ class Plugin(plugin.PluginBase):
             oengcommcons.Stages.CORE_ENGINE_START,
         ),
         condition=lambda self: (
-            self.environment[okkcons.CoreEnv.ENABLE] and
-            self.environment[okkcons.DBEnv.NEW_DATABASE] and
+            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
+            not self.environment[oengcommcons.KeycloakEnv.CONFIGURED] and
             self.environment[
                 oenginecons.EngineDBEnv.JUST_RESTORED
             ] is not True and
@@ -86,7 +86,9 @@ class Plugin(plugin.PluginBase):
         ),
     )
     def _setup_ovirt(self):
-        password = self.environment.get(okkcons.ConfigEnv.ADMIN_PASSWORD)
+        password = self.environment.get(
+            oengcommcons.KeycloakEnv.ADMIN_PASSWORD
+        )
         if password:
             self.logger.info('Start with setting up Keycloak for Ovirt Engine')
 
@@ -236,11 +238,13 @@ class Plugin(plugin.PluginBase):
 
     def _setup_client(self):
         cid = self._get_client_id(
-            client_id_name=okkcons.Const.KEYCLOAK_INTERNAL_CLIENT_NAME
+            client_id_name=self.environment[
+                oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_ID
+            ]
         )
         envs = self.KCADM_ENV.copy()
         envs['CLIENT_SECRET'] = self.environment[
-            okkcons.ConfigEnv
+            oengcommcons.KeycloakEnv
                 .KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET
         ]
         envs['KK_TOOL']=self.environment[
@@ -258,7 +262,9 @@ class Plugin(plugin.PluginBase):
                     '-r', okkcons.Const.KEYCLOAK_INTERNAL_REALM,
                     '-s', 'enabled=true',
                     '-s', 'clientId={}'.format(
-                        okkcons.Const.KEYCLOAK_INTERNAL_CLIENT_NAME
+                        self.environment[
+                            oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_ID
+                        ]
                     ),
                     '-s', 'clientAuthenticatorType=client-secret',
                     '-i',
@@ -699,8 +705,8 @@ class Plugin(plugin.PluginBase):
             osetupcons.Stages.DIALOG_TITLES_S_SUMMARY,
         ),
         condition=lambda self: (
-            self.environment[okkcons.CoreEnv.ENABLE] and
-            self.environment[okkcons.DBEnv.NEW_DATABASE]
+            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
+            not self.environment[oengcommcons.KeycloakEnv.CONFIGURED]
         )
     )
     def _closeup(self):

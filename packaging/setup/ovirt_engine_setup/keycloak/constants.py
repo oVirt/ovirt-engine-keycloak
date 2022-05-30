@@ -135,26 +135,10 @@ class ApacheEnv(object):
 class ConfigEnv(object):
 
     @osetupattrs(
-        is_secret=True,
-        answerfile=True,
-        postinstallfile=True,
-    )
-    def KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET(self):
-        return 'OVESETUP_KEYCLOAK/ovirtInternalClientSecret'
-
-    @osetupattrs(
         answerfile=True,
     )
     def OVIRT_ENGINE_KEYCLOAK_DB_BACKUP_DIR(self):
         return 'OVESETUP_KEYCLOAK_CONFIG/keycloakDbBackupDir'
-
-    @osetupattrs(
-        answerfile=True,
-        postinstallfile=True,
-        is_secret=True,
-    )
-    def ADMIN_PASSWORD(self):
-        return 'OVESETUP_KEYCLOAK_CONFIG/adminPassword'
 
     @osetupattrs(
         postinstallfile=True,
@@ -162,33 +146,9 @@ class ConfigEnv(object):
     def OVIRT_ADMIN_USER(self):
         return 'OVESETUP_KEYCLOAK_CONFIG/ovirtAdminUser'
 
-    @osetupattrs(
-        postinstallfile=True,
-    )
-    def OVIRT_ADMIN_USER_WITH_PROFILE(self):
-        return 'OVESETUP_KEYCLOAK_CONFIG/ovirtAdminUserWithProfile'
-
     KEYCLOAK_ADD_USER_SCRIPT = 'OVESETUP_KEYCLOAK_CONFIG/addUserKeycloakScript'
     KEYCLOAK_CLI_ADMIN_SCRIPT = 'OVESETUP_KEYCLOAK_CONFIG/kcadmScript'
     KEYCLOAK_WRAPPER_SCRIPT = 'OVESETUP_KEYCLOAK_CONFIG/kkWrapperScript'
-    KEYCLOAK_AUTH_URL = 'OVESETUP_KEYCLOAK_CONFIG/authUrl'
-    KEYCLOAK_TOKEN_URL = 'OVESETUP_KEYCLOAK_CONFIG/tokenUrl'
-    KEYCLOAK_USERINFO_URL = 'OVESETUP_KEYCLOAK_CONFIG/userinfoUrl'
-
-@util.export
-@util.codegen
-@osetupattrsclass
-class CoreEnv(object):
-
-    @osetupattrs(
-        answerfile=True,
-        postinstallfile=True,
-        summary=True,
-        reconfigurable=False,
-        description=_('Keycloak installation'),
-    )
-    def ENABLE(self):
-        return 'OVESETUP_KEYCLOAK_CORE/enable'
 
 @util.export
 @util.codegen

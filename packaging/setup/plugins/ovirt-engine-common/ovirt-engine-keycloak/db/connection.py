@@ -23,6 +23,7 @@ from ovirt_engine import configfile
 from ovirt_engine_setup import constants as osetupcons
 from ovirt_engine_setup.engine import constants as oenginecons
 from ovirt_engine_setup.keycloak import constants as okkcons
+from ovirt_engine_setup.engine_common import constants as oengcommcons
 from ovirt_engine_setup.engine_common import database
 
 
@@ -106,7 +107,7 @@ class Plugin(plugin.PluginBase):
             okkcons.Stages.DB_CONNECTION_SETUP,
         ),
         condition=lambda self: (
-            self.environment[okkcons.CoreEnv.ENABLE]
+            self.environment[oengcommcons.KeycloakEnv.ENABLE]
         ),
     )
     def _commands(self):
@@ -123,7 +124,7 @@ class Plugin(plugin.PluginBase):
             okkcons.Stages.CORE_ENABLE,
         ),
         condition=lambda self: (
-            self.environment[okkcons.CoreEnv.ENABLE] and
+            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
             (
                 self.environment[osetupcons.CoreEnv.ACTION]
                 != osetupcons.Const.ACTION_PROVISIONDB
