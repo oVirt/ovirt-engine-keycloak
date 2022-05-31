@@ -19,6 +19,7 @@ from otopi import plugin
 
 from ovirt_engine_setup import constants as osetupcons
 from ovirt_engine_setup.engine import constants as oenginecons
+from ovirt_engine_setup.engine_common import constants as oengcommcons
 from ovirt_engine_setup.keycloak import constants as okkcons
 
 
@@ -45,11 +46,10 @@ class Plugin(plugin.PluginBase):
     @plugin.event(
         stage=plugin.Stages.STAGE_VALIDATION,
         condition=lambda self: (
-            self.environment[okkcons.CoreEnv.ENABLE]
+            self.environment[oengcommcons.KeycloakEnv.ENABLE]
         )
     )
     def _validation(self):
-        # not okkcons.DBEnv.NEW_DATABASE ??
         path = self.environment[
             okkcons.ConfigEnv.OVIRT_ENGINE_KEYCLOAK_DB_BACKUP_DIR
         ]

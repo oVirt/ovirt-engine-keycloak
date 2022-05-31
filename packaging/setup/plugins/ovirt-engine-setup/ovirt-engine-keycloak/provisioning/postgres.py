@@ -59,7 +59,7 @@ class Plugin(plugin.PluginBase):
             okkcons.Stages.DB_CONNECTION_SETUP,
         ),
         condition=lambda self: (
-            self.environment[okkcons.CoreEnv.ENABLE] and
+            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
             self.environment[okkcons.DBEnv.NEW_DATABASE]
         ),
     )
@@ -75,7 +75,7 @@ class Plugin(plugin.PluginBase):
         ),
         condition=lambda self: (
             self._enabled and
-            self.environment[okkcons.CoreEnv.ENABLE] and
+            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
             self.environment[okkcons.DBEnv.NEW_DATABASE]
         )
     )
@@ -84,7 +84,7 @@ class Plugin(plugin.PluginBase):
             okkcons.ProvisioningEnv.POSTGRES_PROVISIONING_ENABLED
         ]
 
-        if not self.environment[okkcons.CoreEnv.ENABLE]:
+        if not self.environment[oengcommcons.KeycloakEnv.ENABLE]:
             enabled = False
 
         if enabled is None:
@@ -133,7 +133,7 @@ class Plugin(plugin.PluginBase):
         priority=plugin.Stages.PRIORITY_LAST,
         condition=lambda self: (
             self.environment[okkcons.DBEnv.HOST] == 'localhost' and
-            self.environment[okkcons.CoreEnv.ENABLE] and
+            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
             self.environment[okkcons.DBEnv.NEW_DATABASE]
         )
     )
@@ -163,7 +163,7 @@ class Plugin(plugin.PluginBase):
         ),
         condition=lambda self: (
             self._enabled and
-            self.environment[okkcons.CoreEnv.ENABLE] and
+            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
             self.environment[okkcons.DBEnv.NEW_DATABASE]
         )
     )
@@ -181,7 +181,7 @@ class Plugin(plugin.PluginBase):
         ),
         condition=lambda self: (
             self._provisioning.databaseRenamed and
-            self.environment[okkcons.CoreEnv.ENABLE] and
+            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
             self.environment[okkcons.DBEnv.NEW_DATABASE]
         )
     )

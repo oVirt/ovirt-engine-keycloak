@@ -44,7 +44,8 @@ class Plugin(plugin.PluginBase):
     @plugin.event(
         stage=plugin.Stages.STAGE_MISC,
         condition=lambda self: (
-            self.environment[okkcons.CoreEnv.ENABLE]
+            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
+            not self.environment[oengcommcons.KeycloakEnv.CONFIGURED]
         )
     )
     def _httpd_keycloak_misc(self):

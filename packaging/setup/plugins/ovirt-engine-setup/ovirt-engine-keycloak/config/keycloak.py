@@ -21,6 +21,7 @@ from ovirt_engine_setup import constants as osetupcons
 from ovirt_engine_setup.engine import constants as oenginecons
 from ovirt_engine_setup.engine_common import constants as oengcommcons
 from ovirt_engine_setup.engine_common import database
+from ovirt_engine_setup.grafana_dwh import constants as ogdwhcons
 from ovirt_engine_setup.keycloak import constants as okkcons
 from ovirt_setup_lib import dialog
 
@@ -40,32 +41,26 @@ class Plugin(plugin.PluginBase):
     )
     def _init(self):
         self.environment.setdefault(
-            okkcons.ConfigEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET,
+            oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET,
             None
         )
         self.environment.setdefault(
-            okkcons.ConfigEnv.ADMIN_PASSWORD,
+            oengcommcons.KeycloakEnv.ADMIN_PASSWORD,
             None
-        )
-        self.environment.setdefault(
-            okkcons.ConfigEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET,
-            None,
         )
 
-        self.environment.setdefault(
-            okkcons.ConfigEnv.OVIRT_ADMIN_USER,
-            okkcons.Const.OVIRT_ADMIN_USER
-        )
+        self.environment[
+            okkcons.ConfigEnv.OVIRT_ADMIN_USER
+        ] = okkcons.Const.OVIRT_ADMIN_USER
 
         keycloak_admin_with_profile = \
             '{user}@{profile}'.format(
                 user=okkcons.Const.OVIRT_ADMIN_USER,
                 profile=okkcons.Const.OVIRT_ENGINE_KEYCLOAK_SSO_PROFILE,
             )
-        self.environment.setdefault(
-            okkcons.ConfigEnv.OVIRT_ADMIN_USER_WITH_PROFILE,
-            keycloak_admin_with_profile
-        )
+        self.environment[
+            oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_ADMIN_USER_WITH_PROFILE
+        ] = keycloak_admin_with_profile
 
     @plugin.event(
         stage=plugin.Stages.STAGE_CUSTOMIZATION,
@@ -75,11 +70,11 @@ class Plugin(plugin.PluginBase):
         ),
         after=(
             oengcommcons.Stages.ADMIN_PASSWORD_SET,
-            #okkcons.Stages.DB_CONNECTION_SETUP,
         ),
         condition=lambda self: (
-            self.environment[okkcons.CoreEnv.ENABLE] and
-            self.environment[okkcons.ConfigEnv.ADMIN_PASSWORD] is None
+            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
+            not self.environment[oengcommcons.KeycloakEnv.CONFIGURED] and
+            self.environment[oengcommcons.KeycloakEnv.ADMIN_PASSWORD] is None
         )
     )
     def _setup_keycloak_ovirt_admin_credentials(self):
@@ -108,26 +103,18 @@ class Plugin(plugin.PluginBase):
                 dialog=self.dialog,
                 logger=self.logger,
                 env=self.environment,
-                key=okkcons.ConfigEnv.ADMIN_PASSWORD,
+                key=oengcommcons.KeycloakEnv.ADMIN_PASSWORD,
                 note=_(
                     f'Keycloak [admin] '
                     f'and [{okkcons.Const.OVIRT_ADMIN_USER}] password: '
                 ),
             )
-        self.environment[okkcons.ConfigEnv.ADMIN_PASSWORD] = password
-        self.environment[
-            oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_ADMIN_USER
-        ] = self.environment[
-            okkcons.ConfigEnv.OVIRT_ADMIN_USER_WITH_PROFILE
-        ]
-        self.environment[
-            oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_ADMIN_PASSWD
-        ] = password
+        self.environment[oengcommcons.KeycloakEnv.ADMIN_PASSWORD] = password
 
     @plugin.event(
         stage=plugin.Stages.STAGE_MISC,
         condition=lambda self: (
-            self.environment[okkcons.CoreEnv.ENABLE] is False and
+            not self.environment[oengcommcons.KeycloakEnv.ENABLE] and
             self.environment[oenginecons.EngineDBEnv.NEW_DATABASE]
         )
     )
@@ -156,16 +143,17 @@ class Plugin(plugin.PluginBase):
         stage=plugin.Stages.STAGE_MISC,
         name=okkcons.Stages.CLIENT_SECRET_GENERATED,
         condition=lambda self: (
-            self.environment[okkcons.CoreEnv.ENABLE] and
+            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
+            not self.environment[oengcommcons.KeycloakEnv.CONFIGURED] and
             not self.environment[
-                okkcons.ConfigEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET
+                oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET
             ]
         )
     )
     def  _misc_client_secret(self):
         client_secret = secrets.token_urlsafe(nbytes=16)
         self.environment[
-            okkcons.ConfigEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET
+            oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET
         ] = client_secret
 
 
@@ -176,8 +164,12 @@ class Plugin(plugin.PluginBase):
             okkcons.Stages.DB_CREDENTIALS_AVAILABLE,
             okkcons.Stages.CLIENT_SECRET_GENERATED,
         ),
+        before=(
+            ogdwhcons.Stages.GRAFANA_CONFIG,
+        ),
         condition=lambda self: (
-            self.environment[okkcons.CoreEnv.ENABLE]
+            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
+            not self.environment[oengcommcons.KeycloakEnv.CONFIGURED]
         )
     )
     def _misc_keycloak_enabled(self):
@@ -190,19 +182,19 @@ class Plugin(plugin.PluginBase):
         )
 
         client_secret = self.environment[
-            okkcons.ConfigEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET
+            oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET
         ]
 
         userinfo_endpoint = self._build_endpoint_url("userinfo")
         self.environment[
-            okkcons.ConfigEnv.KEYCLOAK_USERINFO_URL
+            oengcommcons.KeycloakEnv.KEYCLOAK_USERINFO_URL
         ] = userinfo_endpoint
         token_endpoint = self._build_endpoint_url("token")
         self.environment[
-            okkcons.ConfigEnv.KEYCLOAK_TOKEN_URL
+            oengcommcons.KeycloakEnv.KEYCLOAK_TOKEN_URL
         ] = token_endpoint
         self.environment[
-            okkcons.ConfigEnv.KEYCLOAK_AUTH_URL
+            oengcommcons.KeycloakEnv.KEYCLOAK_AUTH_URL
         ] = self._build_endpoint_url("auth")
 
         logout_endpoint = self._build_endpoint_url("logout")
@@ -237,7 +229,10 @@ class Plugin(plugin.PluginBase):
                     'KEYCLOAK_DB_MAX_CONNECTIONS={keycloak_db_max_connections}\n'
                     '{db_content}\n'
                 ).format(
-                    client_id=okkcons.Const.KEYCLOAK_INTERNAL_CLIENT_NAME,
+                    client_id=self.environment[
+                        oengcommcons.KeycloakEnv
+                            .KEYCLOAK_OVIRT_INTERNAL_CLIENT_ID
+                    ],
                     client_secret=client_secret,
                     userinfo_endpoint=userinfo_endpoint,
                     token_endpoint=token_endpoint,

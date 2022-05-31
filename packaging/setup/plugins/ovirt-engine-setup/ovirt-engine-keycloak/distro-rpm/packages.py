@@ -20,6 +20,7 @@ from otopi import plugin
 
 from ovirt_engine_setup import constants as osetupcons
 from ovirt_engine_setup.engine import constants as oenginecons
+from ovirt_engine_setup.engine_common import constants as oengcommcons
 from ovirt_engine_setup.keycloak import constants as okkcons
 
 
@@ -58,7 +59,9 @@ class Plugin(plugin.PluginBase):
             okkcons.Stages.CORE_ENABLE,
         ),
         condition=lambda self: (
-            self.environment[okkcons.CoreEnv.ENABLE] and
+            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
+            not self.environment[oengcommcons.KeycloakEnv.CONFIGURED] and
+            #TODO check if NEW_DATABASE condition required
             self.environment[oenginecons.EngineDBEnv.NEW_DATABASE] and
             not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE]
         )
@@ -73,37 +76,36 @@ class Plugin(plugin.PluginBase):
             tolist(self.environment[okkcons.RPMDistroEnv.PACKAGES_SETUP])
         )
 
-        if self.environment[okkcons.CoreEnv.ENABLE]:
-            packages = tolist(
-                self.environment[
-                    okkcons.RPMDistroEnv.PACKAGES
-                ]
-            )
+        packages = tolist(
             self.environment[
-                osetupcons.RPMDistroEnv.PACKAGES_UPGRADE_LIST
-            ].append(
-                {
-                    'packages': packages,
-                },
-            )
-            self.environment[
-                osetupcons.RPMDistroEnv.VERSION_LOCK_APPLY
-            ].extend(packages)
+                okkcons.RPMDistroEnv.PACKAGES
+            ]
+        )
+        self.environment[
+            osetupcons.RPMDistroEnv.PACKAGES_UPGRADE_LIST
+        ].append(
+            {
+                'packages': packages,
+            },
+        )
+        self.environment[
+            osetupcons.RPMDistroEnv.VERSION_LOCK_APPLY
+        ].extend(packages)
 
-            self.environment[
-                osetupcons.RPMDistroEnv.VERSION_LOCK_FILTER
-            ].extend(
-                tolist(
-                    self.environment[okkcons.RPMDistroEnv.PACKAGES]
-                )
+        self.environment[
+            osetupcons.RPMDistroEnv.VERSION_LOCK_FILTER
+        ].extend(
+            tolist(
+                self.environment[okkcons.RPMDistroEnv.PACKAGES]
             )
-            self.environment[
-                osetupcons.RPMDistroEnv.VERSION_LOCK_FILTER
-            ].extend(
-                tolist(
-                    self.environment[okkcons.RPMDistroEnv.PACKAGES_SETUP]
-                )
+        )
+        self.environment[
+            osetupcons.RPMDistroEnv.VERSION_LOCK_FILTER
+        ].extend(
+            tolist(
+                self.environment[okkcons.RPMDistroEnv.PACKAGES_SETUP]
             )
+        )
 
 
 # vim: expandtab tabstop=4 shiftwidth=4

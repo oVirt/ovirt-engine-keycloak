@@ -15,6 +15,7 @@ from otopi import plugin
 
 from ovirt_engine import configfile
 from ovirt_engine_setup import constants as osetupcons
+from ovirt_engine_setup.engine_common import constants as oengcommcons
 from ovirt_engine_setup.keycloak import constants as okkcons
 
 
@@ -64,20 +65,26 @@ class Plugin(plugin.PluginBase):
             optional=True,
         )
 
-
     @plugin.event(
         stage=plugin.Stages.STAGE_INIT,
     )
     def _init(self):
+        self.environment.setdefault(
+            oengcommcons.KeycloakEnv.ENABLE,
+            None
+        )
+        self.environment.setdefault(
+            oengcommcons.KeycloakEnv.CONFIGURED,
+            False
+        )
+
         config = configfile.ConfigFile([
             okkcons.FileLocations.OVIRT_ENGINE_SERVICE_CONFIG_KEYCLOAK,
         ])
-
         if config.get('KEYCLOAK_BUNDLED') is not None:
-            self.environment.setdefault(okkcons.CoreEnv.ENABLE,
-                                        config.getboolean('KEYCLOAK_BUNDLED'))
-        else:
-            self.environment.setdefault(okkcons.CoreEnv.ENABLE, None)
+            self.environment[
+                oengcommcons.KeycloakEnv.CONFIGURED
+            ] = config.getboolean('KEYCLOAK_BUNDLED')
 
 
 # vim: expandtab tabstop=4 shiftwidth=4
