@@ -89,6 +89,7 @@ class Const(object):
             DEK.DUMPER: DBEnv.DUMPER,
             DEK.FILTER: DBEnv.FILTER,
             DEK.RESTORE_JOBS: DBEnv.RESTORE_JOBS,
+            DEK.CREDS_Q_NAME_FUNC: keycloak_question_name,
         }
 
     @classproperty
@@ -151,6 +152,11 @@ class ConfigEnv(object):
     KEYCLOAK_WRAPPER_SCRIPT = 'OVESETUP_KEYCLOAK_CONFIG/kkWrapperScript'
     KEYCLOAK_ADMIN_CONSOLE_URL= 'OVESETUP_KEYCLOAK_CONFIG/keycloakAdminConsoleUrl'
 
+
+def keycloak_question_name(what):
+    return f'OVESETUP_KEYCLOAK_DB_{what.upper()}'
+
+
 @util.export
 @util.codegen
 @osetupattrsclass
@@ -162,6 +168,7 @@ class DBEnv(object):
             ProvisioningEnv.POSTGRES_PROVISIONING_ENABLED
         ),
         is_secret=True,
+        asked_on=(keycloak_question_name(DEK.PASSWORD),),
     )
     def PASSWORD(self):
         return 'OVESETUP_KEYCLOAK_DB/password'
@@ -213,15 +220,6 @@ class DBEnv(object):
     )
     def USER(self):
         return 'OVESETUP_KEYCLOAK_DB/user'
-
-    @osetupattrs(
-        answerfile=True,
-        answerfile_condition=lambda env: not env.get(
-            ProvisioningEnv.POSTGRES_PROVISIONING_ENABLED
-        ),
-    )
-    def PASSWORD(self):
-        return 'OVESETUP_KEYCLOAK_DB/password'
 
     @osetupattrs(
         answerfile=True,

@@ -46,7 +46,6 @@ class Plugin(plugin.PluginBase):
             dbenvkeys=okkcons.Const.KEYCLOAK_DB_ENV_KEYS,
         ).getCredentials(
             name='Keycloak',
-            queryprefix='OVESETUP_KEYCLOAK_DB_',
             defaultdbenvkeys=okkcons.Const.DEFAULT_KEYCLOAK_DB_ENV_KEYS,
             show_create_msg=True,
         )

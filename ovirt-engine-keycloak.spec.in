@@ -53,7 +53,7 @@ BuildRequires:	python3
 BuildRequires:	python3-devel
 
 Requires:	%{name} >= 15.0.2
-Requires:	ovirt-engine-setup-plugin-ovirt-engine >= 4.5.0
+Requires:	ovirt-engine-setup-plugin-ovirt-engine >= 4.5.3
 Requires:	python%{python3_pkgversion}-ovirt-setup-lib
 
 %description setup
