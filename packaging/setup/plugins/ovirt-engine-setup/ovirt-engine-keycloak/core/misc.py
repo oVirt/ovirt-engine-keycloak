@@ -31,6 +31,12 @@ class Plugin(plugin.PluginBase):
         super(Plugin, self).__init__(context=context)
 
     @plugin.event(
+        stage=plugin.Stages.STAGE_INIT,
+    )
+    def _init(self):
+        self.environment[oengcommcons.KeycloakEnv.SUPPORTED] = True
+
+    @plugin.event(
         stage=plugin.Stages.STAGE_CUSTOMIZATION,
         name=okkcons.Stages.CORE_ENABLE,
         before=(
