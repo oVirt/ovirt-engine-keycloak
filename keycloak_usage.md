@@ -51,9 +51,7 @@ In case system administrator decides to enable internally bundled Keycloak SSO t
 1. Backup existing setup (full backup & restore exercise is highly recommended)
 2. Enable internally bundled Keycloak. Please note that any existing user base setup needs to be migrated manually. Please see Keycloak documentation how to setup various user backends (todo: links)
 ```
-engine-setup --otopi-environment="OVESETUP_KEYCLOAK_CONFIG/adminPassword=str:CHANGE_ME \
- OVESETUP_KEYCLOAK_CORE/enable=bool:True \
- OVESETUP_KEYCLOAK_DB/newDatabase=bool:True" `
+engine-setup --otopi-environment="OVESETUP_CONFIG/keycloakEnable=bool:True"
 ```
 3. To test the setup please login to Administration Portal using the admin username: `admin@ovirt` and provided password. For REST API access the full username with profile must be provided: `admin@ovirt@internalsso`. In order to login to Keycloak Administration Console please use `admin` and provided password (from the above).
    Additionally, the `engine-setup` output should contain a confirmation that Keycloak has been configured.
