@@ -53,8 +53,11 @@ In case system administrator decides to enable internally bundled Keycloak SSO t
 ```
 engine-setup --otopi-environment="OVESETUP_CONFIG/keycloakEnable=bool:True"
 ```
-3. To test the setup please login to Administration Portal using the admin username: `admin@ovirt` and provided password. For REST API access the full username with profile must be provided: `admin@ovirt@internalsso`. In order to login to Keycloak Administration Console please use `admin` and provided password (from the above).
-   Additionally, the `engine-setup` output should contain a confirmation that Keycloak has been configured.
+3. To test the setup please login to Administration Portal using the admin username: `admin@ovirt` and provided password. For REST API access the full username with profile must be provided: `admin@ovirt@internalsso`.
+4. In order to login to Keycloak Administration Console go to `https://ENGINE_FQDN/ovirt-engine-auth/admin` and use user `admin` with provided password (from the above).
+
+
+Additionally, the `engine-setup` output should contain a confirmation that Keycloak has been configured.
 ```
           --== SUMMARY ==--                                                                                                          
                                                                                                                                      
