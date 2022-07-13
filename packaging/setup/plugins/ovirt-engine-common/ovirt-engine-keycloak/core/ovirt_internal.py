@@ -706,21 +706,30 @@ class Plugin(plugin.PluginBase):
         ),
         condition=lambda self: (
             self.environment[oengcommcons.KeycloakEnv.ENABLE] and
-            not self.environment[oengcommcons.KeycloakEnv.CONFIGURED]
+            self.environment[osetupcons.CoreEnv.ACTION]
+                == osetupcons.Const.ACTION_SETUP
         )
     )
     def _closeup(self):
         self.dialog.note(
             text=_(
-                "Please use the user '{keycloakadmin}' and password specified in "
-                "order to login to Keycloak admin console\n"
-                "Please use the user '{user}' and password specified in "
-                "order to login using Keycloak SSO"
+                "To login to oVirt using Keycloak SSO, "
+                "enter '{user}' as username "
+                "and the password provided during Setup\n"
+                "To login to Keycloak Administration Console "
+                "enter '{keycloakadmin}' as username "
+                "and the password provided during Setup\n"
+                'Web access for Keycloak Administration Console '
+                'is enabled at:\n'
+                '    {keyclaoak_admin_url}\n'
             ).format(
                 user=self.environment[okkcons.ConfigEnv.OVIRT_ADMIN_USER],
                 keycloakadmin=self.environment[
                     oenginecons.ConfigEnv.ADMIN_USER
                 ].rsplit('@', 1)[0],
+                keyclaoak_admin_url=self.environment[
+                    okkcons.ConfigEnv.KEYCLOAK_ADMIN_CONSOLE_URL
+                ],
             ),
         )
 
