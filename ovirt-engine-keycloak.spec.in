@@ -126,6 +126,8 @@ ln -sf %{_datadir}/%{name}/bin/client/keycloak-client-registration-cli-@KEYCLOAK
 %{ovirt_engine_data}/setup/plugins/*/ovirt-engine-keycloak/
 
 %changelog
+* Mon Jul 25 2022 Artur Socha <asocha@redhat.com> 15.0.2-4
+- Better engine-setup summary message
 * Thu Jun 23 2022 Artur Socha <asocha@redhat.com> 15.0.2-3
 - Keycloak reactivation documentation
 - Keycloak 'supported' flag initialization
