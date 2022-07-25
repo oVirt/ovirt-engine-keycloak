@@ -156,6 +156,17 @@ class Plugin(plugin.PluginBase):
             oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET
         ] = client_secret
 
+    @plugin.event(
+        stage=plugin.Stages.STAGE_MISC,
+        condition=lambda self: (
+            self.environment[oengcommcons.KeycloakEnv.ENABLE]
+        )
+    )
+    def _misc_keycloak_admin_url(self):
+        keycloak_url = self._build_keycloak_url()
+        self.environment[
+            okkcons.ConfigEnv.KEYCLOAK_ADMIN_CONSOLE_URL
+        ] = f"{keycloak_url}/admin"
 
     @plugin.event(
         stage=plugin.Stages.STAGE_MISC,
@@ -185,19 +196,20 @@ class Plugin(plugin.PluginBase):
             oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET
         ]
 
-        userinfo_endpoint = self._build_endpoint_url("userinfo")
+        keycloak_url = self._build_keycloak_url()
+        userinfo_endpoint = self._build_endpoint_url(keycloak_url, "userinfo")
         self.environment[
             oengcommcons.KeycloakEnv.KEYCLOAK_USERINFO_URL
         ] = userinfo_endpoint
-        token_endpoint = self._build_endpoint_url("token")
+        token_endpoint = self._build_endpoint_url(keycloak_url, "token")
         self.environment[
             oengcommcons.KeycloakEnv.KEYCLOAK_TOKEN_URL
         ] = token_endpoint
         self.environment[
             oengcommcons.KeycloakEnv.KEYCLOAK_AUTH_URL
-        ] = self._build_endpoint_url("auth")
+        ] = self._build_endpoint_url(keycloak_url, "auth")
 
-        logout_endpoint = self._build_endpoint_url("logout")
+        logout_endpoint = self._build_endpoint_url(keycloak_url, "logout")
 
         db_content = database.OvirtUtils(
             plugin=self,
@@ -322,17 +334,18 @@ class Plugin(plugin.PluginBase):
         )
 
 
-    def _build_endpoint_url(self, endpoint):
-        endpoint_url = 'https://{fqdn}/{keycloak_web_context}/realms/{realm}/protocol/openid-connect/{endpoint}'\
-            .format(
-                fqdn=self.environment[
-                    oenginecons.ConfigEnv.ENGINE_FQDN
-                ],
-                keycloak_web_context=okkcons.Const.KEYCLOAK_WEB_CONTEXT,
-                realm=okkcons.Const.KEYCLOAK_INTERNAL_REALM,
-                endpoint=endpoint
-            )
-        return endpoint_url
+    def _build_keycloak_url(self):
+        fqdn = self.environment[
+            oenginecons.ConfigEnv.ENGINE_FQDN
+        ]
+        keycloak_web_context=okkcons.Const.KEYCLOAK_WEB_CONTEXT
+        keycloak_url = f'https://{fqdn}/{keycloak_web_context}'
+        return keycloak_url
+
+    def _build_endpoint_url(self, keycloak_url, endpoint):
+        return f"{keycloak_url}" \
+               f"/realms/{okkcons.Const.KEYCLOAK_INTERNAL_REALM}" \
+               f"/protocol/openid-connect/{endpoint}"
 
 
 # vim: expandtab tabstop=4 shiftwidth=4
