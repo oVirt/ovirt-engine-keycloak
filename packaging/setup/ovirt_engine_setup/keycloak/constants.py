@@ -71,6 +71,7 @@ class Const(object):
     KEYCLOAK_CLI_ADMIN_SCRIPT = 'kcadm.sh'
     OVIRT_ENGINE_KEYCLOAK_PACKAGE_NAME = 'ovirt-engine-keycloak'
     OVIRT_ENGINE_KEYCLOAK_SETUP_PACKAGE_NAME = 'ovirt-engine-keycloak-setup'
+    OVIRT_ENGINE_KEYCLOAK_CONFIG_DELAY_SECONDS = 10
 
     @classproperty
     def KEYCLOAK_DB_ENV_KEYS(self):
@@ -150,6 +151,9 @@ class ConfigEnv(object):
     KEYCLOAK_CLI_ADMIN_SCRIPT = 'OVESETUP_KEYCLOAK_CONFIG/kcadmScript'
     KEYCLOAK_WRAPPER_SCRIPT = 'OVESETUP_KEYCLOAK_CONFIG/kkWrapperScript'
     KEYCLOAK_ADMIN_CONSOLE_URL= 'OVESETUP_KEYCLOAK_CONFIG/keycloakAdminConsoleUrl'
+
+    OVIRT_ENGINE_KEYCLOAK_CONFIG_DELAY = 'OVESETUP_KEYCLOAK_CONFIG/configDelaySeconds'
+
 
 @util.export
 @util.codegen
