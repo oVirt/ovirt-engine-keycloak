@@ -54,14 +54,11 @@ class Plugin(plugin.PluginBase):
         )
 
     @plugin.event(
-        stage=plugin.Stages.STAGE_CUSTOMIZATION,
+        stage=plugin.Stages.STAGE_SETUP,
         after=(
             okkcons.Stages.DB_CONNECTION_SETUP,
         ),
-        condition=lambda self: (
-            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
-            self.environment[okkcons.DBEnv.NEW_DATABASE]
-        ),
+        condition=lambda self: self.environment[okkcons.DBEnv.NEW_DATABASE],
     )
     def _setup(self):
         self._provisioning.detectCommands()
@@ -72,6 +69,10 @@ class Plugin(plugin.PluginBase):
         name=okkcons.Stages.DB_PROVISIONING_CUSTOMIZATION,
         after=(
             oengcommcons.Stages.DIALOG_TITLES_S_DATABASE,
+        ),
+        before=(
+            oengcommcons.Stages.DIALOG_TITLES_E_DATABASE,
+            okkcons.Stages.DB_CONNECTION_CUSTOMIZATION,
         ),
         condition=lambda self: (
             self._enabled and
@@ -127,6 +128,8 @@ class Plugin(plugin.PluginBase):
         self.environment[
             okkcons.ProvisioningEnv.POSTGRES_PROVISIONING_ENABLED
         ] = self._enabled = enabled
+        if self._enabled:
+            self._provisioning.applyEnvironment()
 
     @plugin.event(
         stage=plugin.Stages.STAGE_CUSTOMIZATION,
@@ -168,7 +171,6 @@ class Plugin(plugin.PluginBase):
         )
     )
     def _misc(self):
-        self._provisioning.applyEnvironment()
         self._provisioning.provision()
 
     @plugin.event(
