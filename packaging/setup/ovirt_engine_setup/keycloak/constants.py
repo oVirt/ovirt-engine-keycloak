@@ -363,6 +363,8 @@ class Stages(object):
     KEYCLOAK_CREDENTIALS_SETUP = 'osetup.keycloak.config.credentials'
     DB_CREDENTIALS_AVAILABLE = 'osetup.keycloak.db.connection.credentials'
     DB_CONNECTION_SETUP = 'osetup.keycloak.db.connection.setup'
+    DB_CONNECTION_CUSTOMIZATION = \
+        'osetup.keycloak.db.connection.customization'
     ENGINE_DB_CONNECTION_AVAILABLE = \
         'osetup.keycloak.engine.db.connection.available'
     DB_PROVISIONING_CUSTOMIZATION = 'osetup.keycloak.db.provisioning.customization'
