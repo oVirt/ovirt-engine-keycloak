@@ -15,9 +15,9 @@ RPM_VERSION="${KEYCLOAK_VERSION}"
 RPM_RELEASE_MAIN="5"
 
 # For stable releases it should be empty
-# RPM_RELEASE_SUFFIX=""
+RPM_RELEASE_SUFFIX=""
 # For nightly release it should contain githash and current date
-RPM_RELEASE_SUFFIX=".0.master.$(GIT_HASH).$(shell date -u +%Y%m%d%H%M%S)"
+# RPM_RELEASE_SUFFIX=".0.master.$(GIT_HASH).$(shell date -u +%Y%m%d%H%M%S)"
 
 RPM_RELEASE="$(RPM_RELEASE_MAIN)$(RPM_RELEASE_SUFFIX)"
 
