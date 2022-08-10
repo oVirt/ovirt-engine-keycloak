@@ -126,16 +126,22 @@ ln -sf %{_datadir}/%{name}/bin/client/keycloak-client-registration-cli-@KEYCLOAK
 %{ovirt_engine_data}/setup/plugins/*/ovirt-engine-keycloak/
 
 %changelog
-* Mon Jul 25 2022 Artur Socha <asocha@redhat.com> 15.0.2-4
+* Wed Aug 10 2022 Martin Perina <mperina@redhat.com> - 15.0.2-5
+- Allow custom DB credentials
+
+* Mon Jul 25 2022 Artur Socha <asocha@redhat.com> - 15.0.2-4
 - Better engine-setup summary message
-* Thu Jun 23 2022 Artur Socha <asocha@redhat.com> 15.0.2-3
+
+* Thu Jun 23 2022 Artur Socha <asocha@redhat.com> - 15.0.2-3
 - Keycloak reactivation documentation
 - Keycloak 'supported' flag initialization
-* Fri Jun 3 2022 Artur Socha <asocha@redhat.com> 15.0.2-2
+
+* Fri Jun 3 2022 Artur Socha <asocha@redhat.com> - 15.0.2-2
 - Support for activation of Keycloak SSO on existing installation
 - Fix for oVirt Provider OVN Keycloak credentials
 - Fix for oVirt Monitoring Portal Keycloak credentials
 - Support for oVirt Engine backup & restore
-* Wed Nov 10 2021 Artur Socha <asocha@redhat.com> 15.0.2-1
+
+* Wed Nov 10 2021 Artur Socha <asocha@redhat.com> - 15.0.2-1
 - Initial release
 
