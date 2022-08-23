@@ -86,10 +86,13 @@ class Plugin(plugin.PluginBase):
         ),
     )
     def _setup_ovirt(self):
-        password = self.environment.get(
+        keyclock_admin_password = self.environment.get(
             oengcommcons.KeycloakEnv.ADMIN_PASSWORD
         )
-        if password:
+        engine_admin_password = self.environment.get(
+            oenginecons.ConfigEnv.ADMIN_PASSWORD
+        )
+        if keyclock_admin_password and engine_admin_password:
             self.logger.info('Start with setting up Keycloak for Ovirt Engine')
 
             # TODO sometimes keycloak app is not ready soon enough  resulting
@@ -101,7 +104,7 @@ class Plugin(plugin.PluginBase):
 
             self.logger.debug(_('Logging in with Keycloak CLI admin'))
             self._login(
-                passwd=password
+                passwd=keyclock_admin_password
             )
 
             self.logger.debug('Creating realm with Keycloak CLI admin')
@@ -135,7 +138,7 @@ class Plugin(plugin.PluginBase):
             administrator_group_id = self._setup_ovirt_administrator_group()
             self._setup_internal_admin_user(
                 administrator_group_id=administrator_group_id,
-                password=password,
+                password=engine_admin_password,
             )
 
             for role in okkcons.Const.GRAFANA_USER_ROLES:
