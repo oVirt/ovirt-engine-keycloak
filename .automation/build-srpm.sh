@@ -1,12 +1,6 @@
 #!/bin/bash -xe
 
-# Finding git hash of the current commit depends if executed from github or not
-if [ "${GITHUB_SHA}" == "" ]; then
-  GIT_HASH=$(git rev-list HEAD | wc -l)
-else
-  GIT_HASH=$(git rev-parse --short $GITHUB_SHA)
-fi
-export GIT_HASH
+export GIT_HASH=$(git rev-parse --short HEAD)
 
 # Directory, where build artifacts will be stored, should be passed as the 1st parameter
 ARTIFACTS_DIR=${1:-exported-artifacts}
