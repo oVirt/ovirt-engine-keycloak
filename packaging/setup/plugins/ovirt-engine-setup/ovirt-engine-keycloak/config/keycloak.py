@@ -85,9 +85,7 @@ class Plugin(plugin.PluginBase):
                 name='KEYCLOAK_USE_ENGINE_ADMIN_PASSWORD',
                 note=_(
                     f"Use Engine admin password as initial "
-                    f"keycloak admin [admin] "
-                    f"and [{okkcons.Const.OVIRT_ADMIN_USER}] "
-                    f"administration panel user password "
+                    f"keycloak admin password "
                     f"(@VALUES@) [@DEFAULT@]: "
                 ),
                 prompt=True,
@@ -105,8 +103,7 @@ class Plugin(plugin.PluginBase):
                 env=self.environment,
                 key=oengcommcons.KeycloakEnv.ADMIN_PASSWORD,
                 note=_(
-                    f'Keycloak [admin] '
-                    f'and [{okkcons.Const.OVIRT_ADMIN_USER}] password: '
+                    f'Keycloak [admin] password: '
                 ),
             )
         self.environment[oengcommcons.KeycloakEnv.ADMIN_PASSWORD] = password
