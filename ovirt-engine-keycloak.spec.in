@@ -126,6 +126,10 @@ ln -sf %{_datadir}/%{name}/bin/client/keycloak-client-registration-cli-@KEYCLOAK
 %{ovirt_engine_data}/setup/plugins/*/ovirt-engine-keycloak/
 
 %changelog
+* Fri Oct 07 2022 Martin Perina <mperina@redhat.com> - 15.0.2-6
+- Set password of admin@ovirt to be engine admin password
+- packaging: setup: Filter from logs secrets from otopi answer files
+
 * Wed Aug 10 2022 Martin Perina <mperina@redhat.com> - 15.0.2-5
 - Allow custom DB credentials
 
