@@ -12,12 +12,12 @@ KEYCLOAK_VERSION="15.0.2"
 # RPM version specification
 RPM_VERSION="${KEYCLOAK_VERSION}"
 
-RPM_RELEASE_MAIN="6"
+RPM_RELEASE_MAIN="7"
 
 # For stable releases it should be empty
-RPM_RELEASE_SUFFIX=""
+#RPM_RELEASE_SUFFIX=""
 # For nightly release it should contain githash and current date
-#RPM_RELEASE_SUFFIX=".0.master.$(shell date -u +%Y%m%d%H%M%S).git$(GIT_HASH)"
+RPM_RELEASE_SUFFIX=".0.master.$(shell date -u +%Y%m%d%H%M%S).git$(GIT_HASH)"
 
 
 RPM_RELEASE="$(RPM_RELEASE_MAIN)$(RPM_RELEASE_SUFFIX)"
