@@ -79,22 +79,33 @@ class Plugin(plugin.PluginBase):
     )
     def _setup_keycloak_ovirt_admin_credentials(self):
         password = None
-        if self.environment[oenginecons.ConfigEnv.ADMIN_PASSWORD] is not None:
-            use_engine_admin_password = dialog.queryBoolean(
+        if self.environment[oenginecons.ConfigEnv.ADMIN_PASSWORD] is None:
+            engine_admin_password = dialog.queryPassword(
                 dialog=self.dialog,
-                name='KEYCLOAK_USE_ENGINE_ADMIN_PASSWORD',
+                logger=self.logger,
+                env=self.environment,
+                key=oengcommcons.ConfigEnv.ADMIN_PASSWORD,
                 note=_(
-                    f"Use Engine admin password as initial "
-                    f"keycloak admin password "
-                    f"(@VALUES@) [@DEFAULT@]: "
+                    f'Engine [admin] password: '
                 ),
-                prompt=True,
-                default=True
             )
-            if use_engine_admin_password:
-                password = self.environment[
-                    oenginecons.ConfigEnv.ADMIN_PASSWORD
-                ]
+            self.environment[oengcommcons.ConfigEnv.ADMIN_PASSWORD] = engine_admin_password
+
+        use_engine_admin_password = dialog.queryBoolean(
+            dialog=self.dialog,
+            name='KEYCLOAK_USE_ENGINE_ADMIN_PASSWORD',
+            note=_(
+                f"Use Engine admin password as initial "
+                f"keycloak admin password "
+                f"(@VALUES@) [@DEFAULT@]: "
+            ),
+            prompt=True,
+            default=True
+        )
+        if use_engine_admin_password:
+            password = self.environment[
+                oenginecons.ConfigEnv.ADMIN_PASSWORD
+            ]
 
         if password is None:
             password = dialog.queryPassword(
