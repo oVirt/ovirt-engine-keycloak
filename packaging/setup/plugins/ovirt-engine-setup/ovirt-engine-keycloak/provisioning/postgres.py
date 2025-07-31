@@ -18,7 +18,6 @@ from otopi import plugin
 
 
 from ovirt_engine_setup import constants as osetupcons
-from ovirt_engine_setup.engine import constants as oenginecons
 from ovirt_engine_setup.keycloak import constants as okkcons
 from ovirt_setup_lib import dialog
 from ovirt_engine_setup.engine_common import postgres
@@ -75,9 +74,9 @@ class Plugin(plugin.PluginBase):
             okkcons.Stages.DB_CONNECTION_CUSTOMIZATION,
         ),
         condition=lambda self: (
-            self._enabled and
-            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
-            self.environment[okkcons.DBEnv.NEW_DATABASE]
+            self._enabled
+            and self.environment[oengcommcons.KeycloakEnv.ENABLE]
+            and self.environment[okkcons.DBEnv.NEW_DATABASE]
         )
     )
     def _customization(self):
@@ -135,9 +134,9 @@ class Plugin(plugin.PluginBase):
         stage=plugin.Stages.STAGE_CUSTOMIZATION,
         priority=plugin.Stages.PRIORITY_LAST,
         condition=lambda self: (
-            self.environment[okkcons.DBEnv.HOST] == 'localhost' and
-            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
-            self.environment[okkcons.DBEnv.NEW_DATABASE]
+            self.environment[okkcons.DBEnv.HOST] == 'localhost'
+            and self.environment[oengcommcons.KeycloakEnv.ENABLE]
+            and self.environment[okkcons.DBEnv.NEW_DATABASE]
         )
     )
     def _customization_firewall(self):
@@ -165,9 +164,9 @@ class Plugin(plugin.PluginBase):
             osetupcons.Stages.SYSTEM_SYSCTL_CONFIG_AVAILABLE,
         ),
         condition=lambda self: (
-            self._enabled and
-            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
-            self.environment[okkcons.DBEnv.NEW_DATABASE]
+            self._enabled
+            and self.environment[oengcommcons.KeycloakEnv.ENABLE]
+            and self.environment[okkcons.DBEnv.NEW_DATABASE]
         )
     )
     def _misc(self):
@@ -182,9 +181,9 @@ class Plugin(plugin.PluginBase):
             osetupcons.Stages.DIALOG_TITLES_S_SUMMARY,
         ),
         condition=lambda self: (
-            self._provisioning.databaseRenamed and
-            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
-            self.environment[okkcons.DBEnv.NEW_DATABASE]
+            self._provisioning.databaseRenamed
+            and self.environment[oengcommcons.KeycloakEnv.ENABLE]
+            and self.environment[okkcons.DBEnv.NEW_DATABASE]
         )
     )
     def _closeup(self):

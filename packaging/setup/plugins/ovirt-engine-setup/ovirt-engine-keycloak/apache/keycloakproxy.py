@@ -16,7 +16,6 @@ from otopi import plugin
 from otopi import util
 from ovirt_engine import util as outil
 from ovirt_engine_setup import constants as osetupcons
-from ovirt_engine_setup.engine import constants as oenginecons
 from ovirt_engine_setup.engine_common import constants as oengcommcons
 from ovirt_engine_setup.keycloak import constants as okkcons
 
@@ -44,8 +43,8 @@ class Plugin(plugin.PluginBase):
     @plugin.event(
         stage=plugin.Stages.STAGE_MISC,
         condition=lambda self: (
-            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
-            not self.environment[oengcommcons.KeycloakEnv.CONFIGURED]
+            self.environment[oengcommcons.KeycloakEnv.ENABLE]
+            and not self.environment[oengcommcons.KeycloakEnv.CONFIGURED]
         )
     )
     def _httpd_keycloak_misc(self):

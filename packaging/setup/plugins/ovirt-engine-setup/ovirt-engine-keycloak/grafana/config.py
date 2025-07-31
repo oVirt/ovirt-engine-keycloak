@@ -18,6 +18,7 @@ from ovirt_engine_setup.engine_common import constants as oengcommcons
 from ovirt_engine_setup.grafana_dwh import constants as ogdwhcons
 from ovirt_engine_setup.keycloak import constants as okkcons
 
+
 def _(m):
     return gettext.dgettext(message=m, domain='ovirt-engine-keycloak')
 

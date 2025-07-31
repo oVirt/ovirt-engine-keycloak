@@ -17,8 +17,6 @@ import gettext
 from otopi import util
 from otopi import plugin
 
-from ovirt_engine_setup import constants as osetupcons
-from ovirt_engine_setup.engine import constants as oenginecons
 from ovirt_engine_setup.engine_common import constants as oengcommcons
 from ovirt_engine_setup.keycloak import constants as okkcons
 

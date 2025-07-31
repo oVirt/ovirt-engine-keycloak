@@ -128,8 +128,8 @@ class Plugin(plugin.PluginBase):
         name=okkcons.Stages.ENGINE_DB_CONNECTION_AVAILABLE,
         condition=lambda self: (
             # If engine is enabled, STATEMENT and CONNECTION are set there
-            not self.environment[oenginecons.CoreEnv.ENABLE] and
-            self.environment[oenginecons.EngineDBEnv.PASSWORD] is not None
+            not self.environment[oenginecons.CoreEnv.ENABLE]
+            and self.environment[oenginecons.EngineDBEnv.PASSWORD] is not None
         ),
         after=(
             oengcommcons.Stages.DB_CONNECTION_AVAILABLE,

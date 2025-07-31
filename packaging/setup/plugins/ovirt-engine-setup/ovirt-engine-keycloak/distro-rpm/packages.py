@@ -59,11 +59,11 @@ class Plugin(plugin.PluginBase):
             okkcons.Stages.CORE_ENABLE,
         ),
         condition=lambda self: (
-            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
-            not self.environment[oengcommcons.KeycloakEnv.CONFIGURED] and
-            #TODO check if NEW_DATABASE condition required
-            self.environment[oenginecons.EngineDBEnv.NEW_DATABASE] and
-            not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE]
+            self.environment[oengcommcons.KeycloakEnv.ENABLE]
+            and not self.environment[oengcommcons.KeycloakEnv.CONFIGURED]
+            # TODO check if NEW_DATABASE condition required
+            and self.environment[oenginecons.EngineDBEnv.NEW_DATABASE]
+            and not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE]
         )
     )
     def _customization(self):

@@ -16,7 +16,6 @@ import os
 from otopi import util
 
 from ovirt_engine_setup import constants as oesetupcons
-from ovirt_engine_setup.engine_common import config as oesetupcommconfig
 from ovirt_engine_setup.engine_common import constants as oengcommcons
 from ovirt_engine_setup.constants import classproperty
 from ovirt_engine_setup.constants import osetupattrs
@@ -29,7 +28,9 @@ from . import config
 def _(m):
     return gettext.dgettext(message=m, domain='ovirt-engine-setup')
 
+
 DEK = oengcommcons.DBEnvKeysConst
+
 
 @util.export
 @util.codegen
@@ -107,6 +108,7 @@ class Const(object):
             DEK.RESTORE_JOBS: Defaults.DEFAULT_DB_RESTORE_JOBS,
         }
 
+
 @util.export
 @util.codegen
 class Defaults(object):
@@ -121,6 +123,7 @@ class Defaults(object):
     DEFAULT_DB_RESTORE_JOBS = 2
     DEFAULT_DB_FILTER = None
 
+
 @util.export
 @util.codegen
 @osetupattrsclass
@@ -129,6 +132,7 @@ class ApacheEnv(object):
         'OVESETUP_APACHE/configFileOvirtEngineKeycloak'
     HTTPD_CONF_OVIRT_ENGINE_INTERNAL_SSO_OPENIDC = \
         'OVESETUP_APACHE/configFileInternalSsoOpenIdc'
+
 
 @util.export
 @util.codegen
@@ -150,7 +154,7 @@ class ConfigEnv(object):
     KEYCLOAK_ADD_USER_SCRIPT = 'OVESETUP_KEYCLOAK_CONFIG/addUserKeycloakScript'
     KEYCLOAK_CLI_ADMIN_SCRIPT = 'OVESETUP_KEYCLOAK_CONFIG/kcadmScript'
     KEYCLOAK_WRAPPER_SCRIPT = 'OVESETUP_KEYCLOAK_CONFIG/kkWrapperScript'
-    KEYCLOAK_ADMIN_CONSOLE_URL= 'OVESETUP_KEYCLOAK_CONFIG/keycloakAdminConsoleUrl'
+    KEYCLOAK_ADMIN_CONSOLE_URL = 'OVESETUP_KEYCLOAK_CONFIG/keycloakAdminConsoleUrl'
 
 
 def keycloak_question_name(what):
@@ -245,6 +249,7 @@ class DBEnv(object):
     NEW_DATABASE = 'OVESETUP_KEYCLOAK_DB/newDatabase'
     NEED_DBMSUPGRADE = 'OVESETUP_KEYCLOAK_DB/needDBMSUpgrade'
 
+
 @util.export
 @util.codegen
 @osetupattrsclass
@@ -258,6 +263,7 @@ class ProvisioningEnv(object):
     def POSTGRES_PROVISIONING_ENABLED(self):
         return 'OVESETUP_KEYCLOAK_PROVISIONING/postgresProvisioningEnabled'
 
+
 @util.export
 @util.codegen
 @osetupattrsclass
@@ -268,12 +274,14 @@ class RemoveEnv(object):
     def REMOVE_DATABASE(self):
         return 'OVESETUP_KEYCLOAK_REMOVE/database'
 
+
 @util.export
 @util.codegen
 @osetupattrsclass
 class RPMDistroEnv(object):
     PACKAGES = 'OVESETUP_KEYCLOAK_RPMDISRO_PACKAGES'
     PACKAGES_SETUP = 'OVESETUP_KEYCLOAK_RPMDISRO_PACKAGES_SETUP'
+
 
 @util.export
 @util.codegen
@@ -352,6 +360,7 @@ class FileLocations(oesetupcons.FileLocations):
         PKG_STATE_DIR,
         'backups',
     )
+
 
 @util.export
 class Stages(object):

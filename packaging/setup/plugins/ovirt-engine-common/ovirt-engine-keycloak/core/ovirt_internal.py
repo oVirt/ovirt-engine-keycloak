@@ -32,7 +32,7 @@ class Plugin(plugin.PluginBase):
     """Ovirt engine keycloak internal sso realm configuration plugin."""
 
     KCADM_ENV = {
-        'KC_OPTS':'-Dcom.redhat.fips=false'
+        'KC_OPTS': '-Dcom.redhat.fips=false'
     }
 
     def __init__(self, context):
@@ -61,7 +61,7 @@ class Plugin(plugin.PluginBase):
             dir=okkcons.FileLocations.OVIRT_ENGINE_CONFIG_DIR,
             prefix="kcadm"
         )
-        self._tempKcadmConfigPath=os.path.join(
+        self._tempKcadmConfigPath = os.path.join(
             self._tmp_dir.name,
             'kcadm.config'
         )
@@ -75,12 +75,12 @@ class Plugin(plugin.PluginBase):
             oengcommcons.Stages.CORE_ENGINE_START,
         ),
         condition=lambda self: (
-            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
-            not self.environment[oengcommcons.KeycloakEnv.CONFIGURED] and
-            self.environment[
+            self.environment[oengcommcons.KeycloakEnv.ENABLE]
+            and not self.environment[oengcommcons.KeycloakEnv.CONFIGURED]
+            and self.environment[
                 oenginecons.EngineDBEnv.JUST_RESTORED
-            ] is not True and
-            not self.environment[
+            ] is not True
+            and not self.environment[
                 osetupcons.CoreEnv.ACTION
             ] == osetupcons.Const.ACTION_PROVISIONDB
         ),
@@ -247,10 +247,9 @@ class Plugin(plugin.PluginBase):
         )
         envs = self.KCADM_ENV.copy()
         envs['CLIENT_SECRET'] = self.environment[
-            oengcommcons.KeycloakEnv
-                .KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET
+            oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET
         ]
-        envs['KK_TOOL']=self.environment[
+        envs['KK_TOOL'] = self.environment[
             okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
         ]
         if cid is None:
@@ -475,7 +474,7 @@ class Plugin(plugin.PluginBase):
         # set admin password
         envs = self.KCADM_ENV.copy()
         envs['USER_NEW_PASSWORD'] = password
-        envs['KK_TOOL']=self.environment[
+        envs['KK_TOOL'] = self.environment[
             okkcons.ConfigEnv.KEYCLOAK_CLI_ADMIN_SCRIPT
         ]
         self.execute(
@@ -708,9 +707,9 @@ class Plugin(plugin.PluginBase):
             osetupcons.Stages.DIALOG_TITLES_S_SUMMARY,
         ),
         condition=lambda self: (
-            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
-            self.environment[osetupcons.CoreEnv.ACTION]
-                == osetupcons.Const.ACTION_SETUP
+            self.environment[oengcommcons.KeycloakEnv.ENABLE]
+            and self.environment[osetupcons.CoreEnv.ACTION]
+            == osetupcons.Const.ACTION_SETUP
         )
     )
     def _closeup(self):
