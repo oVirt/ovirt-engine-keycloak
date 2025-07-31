@@ -36,6 +36,13 @@ jobs:
 
     - name: Checkout sources
       uses: ovirt/checkout-action@main
+    
+    - name: Install linting dependencies
+      run: pip3 install flake8
+
+    - name: Run linting
+      run: |
+        ./build/python-check.sh
 
     - name: Perform build
       run: |
