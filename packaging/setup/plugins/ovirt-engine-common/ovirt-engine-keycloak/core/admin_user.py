@@ -52,19 +52,18 @@ class Plugin(plugin.PluginBase):
             okkcons.FileLocations.KEYCLOAK_WRAPPER_SCRIPT,
         )
 
-
     @plugin.event(
         stage=plugin.Stages.STAGE_MISC,
         after=(
             okkcons.Stages.KEYCLOAK_CREDENTIALS_SETUP,
         ),
         condition=lambda self: (
-            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
-            not self.environment[oengcommcons.KeycloakEnv.CONFIGURED] and
-            self.environment[
+            self.environment[oengcommcons.KeycloakEnv.ENABLE]
+            and not self.environment[oengcommcons.KeycloakEnv.CONFIGURED]
+            and self.environment[
                 oenginecons.EngineDBEnv.JUST_RESTORED
-            ] is not True and
-            not self.environment[
+            ] is not True
+            and not self.environment[
                 osetupcons.CoreEnv.ACTION
             ] == osetupcons.Const.ACTION_PROVISIONDB
         ),

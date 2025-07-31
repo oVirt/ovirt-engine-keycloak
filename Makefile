@@ -61,7 +61,6 @@ BUILD_FILE=tmp.built
 
 
 GENERATED = \
-	build/python-check.sh \
 	ovirt-engine-keycloak.spec \
 	packaging/setup/ovirt_engine_setup/keycloak/config.py \
 	$(NULL)
@@ -74,7 +73,6 @@ all:	\
 	$(NULL)
 
 generated-files:	$(GENERATED)
-	chmod a+x build/python-check.sh
 
 $(BUILD_FILE):
 	touch $(BUILD_FILE)

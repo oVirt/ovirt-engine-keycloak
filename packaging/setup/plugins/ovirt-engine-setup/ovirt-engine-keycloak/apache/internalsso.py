@@ -48,8 +48,8 @@ class Plugin(plugin.PluginBase):
     @plugin.event(
         stage=plugin.Stages.STAGE_MISC,
         condition=lambda self: (
-            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
-            not self.environment[oengcommcons.KeycloakEnv.CONFIGURED]
+            self.environment[oengcommcons.KeycloakEnv.ENABLE]
+            and not self.environment[oengcommcons.KeycloakEnv.CONFIGURED]
         ),
         after=(
             okkcons.Stages.CLIENT_SECRET_GENERATED,
@@ -71,8 +71,7 @@ class Plugin(plugin.PluginBase):
         self.environment[otopicons.CoreEnv.MAIN_TRANSACTION].append(
             filetransaction.FileTransaction(
                 name=self.environment[
-                    okkcons.ApacheEnv
-                        .HTTPD_CONF_OVIRT_ENGINE_INTERNAL_SSO_OPENIDC
+                    okkcons.ApacheEnv.HTTPD_CONF_OVIRT_ENGINE_INTERNAL_SSO_OPENIDC
                 ],
                 mode=0o640,
                 enforcePermissions=True,
@@ -80,12 +79,10 @@ class Plugin(plugin.PluginBase):
                     template=(openidc_template),
                     subst={
                         '@CLIENT_SECRET@': self.environment[
-                            oengcommcons.KeycloakEnv
-                                .KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET
+                            oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET
                         ],
-                        '@CLIENT_ID@':self.environment[
-                            oengcommcons.KeycloakEnv
-                                .KEYCLOAK_OVIRT_INTERNAL_CLIENT_ID
+                        '@CLIENT_ID@': self.environment[
+                            oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_ID
                         ],
                         '@OVIRT_REALM@':
                             okkcons.Const.KEYCLOAK_INTERNAL_REALM,

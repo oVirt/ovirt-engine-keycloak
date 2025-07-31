@@ -21,9 +21,7 @@ from otopi import plugin
 from ovirt_engine import configfile
 
 from ovirt_engine_setup import constants as osetupcons
-from ovirt_engine_setup.engine import constants as oenginecons
 from ovirt_engine_setup.keycloak import constants as okkcons
-from ovirt_engine_setup.engine_common import constants as oengcommcons
 from ovirt_engine_setup.engine_common import database
 
 
@@ -138,8 +136,8 @@ class Plugin(plugin.PluginBase):
                 for e, k in (
                         (okkcons.DBEnv.SECURED, 'KEYCLOAK_DB_SECURED'),
                         (
-                                okkcons.DBEnv.SECURED_HOST_VALIDATION,
-                                'KEYCLOAK_DB_SECURED_VALIDATION'
+                            okkcons.DBEnv.SECURED_HOST_VALIDATION,
+                            'KEYCLOAK_DB_SECURED_VALIDATION'
                         )
                 ):
                     dbenv[e] = config.getboolean(k)

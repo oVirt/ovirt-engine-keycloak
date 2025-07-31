@@ -12,7 +12,6 @@ from otopi import util
 
 from . import config
 from . import connection
-from . import engine_connection
 from . import pgpass
 
 

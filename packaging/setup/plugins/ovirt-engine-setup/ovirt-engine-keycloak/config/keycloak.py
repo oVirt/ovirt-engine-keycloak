@@ -25,6 +25,7 @@ from ovirt_engine_setup.grafana_dwh import constants as ogdwhcons
 from ovirt_engine_setup.keycloak import constants as okkcons
 from ovirt_setup_lib import dialog
 
+
 def _(m):
     return gettext.dgettext(message=m, domain='ovirt-engine-keycloak')
 
@@ -72,9 +73,9 @@ class Plugin(plugin.PluginBase):
             oengcommcons.Stages.ADMIN_PASSWORD_SET,
         ),
         condition=lambda self: (
-            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
-            not self.environment[oengcommcons.KeycloakEnv.CONFIGURED] and
-            self.environment[oengcommcons.KeycloakEnv.ADMIN_PASSWORD] is None
+            self.environment[oengcommcons.KeycloakEnv.ENABLE]
+            and not self.environment[oengcommcons.KeycloakEnv.CONFIGURED]
+            and self.environment[oengcommcons.KeycloakEnv.ADMIN_PASSWORD] is None
         )
     )
     def _setup_keycloak_ovirt_admin_credentials(self):
@@ -84,9 +85,9 @@ class Plugin(plugin.PluginBase):
                 dialog=self.dialog,
                 name='KEYCLOAK_USE_ENGINE_ADMIN_PASSWORD',
                 note=_(
-                    f"Use Engine admin password as initial "
-                    f"keycloak admin password "
-                    f"(@VALUES@) [@DEFAULT@]: "
+                    "Use Engine admin password as initial "
+                    "keycloak admin password "
+                    "(@VALUES@) [@DEFAULT@]: "
                 ),
                 prompt=True,
                 default=True
@@ -103,7 +104,7 @@ class Plugin(plugin.PluginBase):
                 env=self.environment,
                 key=oengcommcons.KeycloakEnv.ADMIN_PASSWORD,
                 note=_(
-                    f'Keycloak [admin] password: '
+                    'Keycloak [admin] password: '
                 ),
             )
         self.environment[oengcommcons.KeycloakEnv.ADMIN_PASSWORD] = password
@@ -111,8 +112,8 @@ class Plugin(plugin.PluginBase):
     @plugin.event(
         stage=plugin.Stages.STAGE_MISC,
         condition=lambda self: (
-            not self.environment[oengcommcons.KeycloakEnv.ENABLE] and
-            self.environment[oenginecons.EngineDBEnv.NEW_DATABASE]
+            not self.environment[oengcommcons.KeycloakEnv.ENABLE]
+            and self.environment[oenginecons.EngineDBEnv.NEW_DATABASE]
         )
     )
     def _misc_keycloak_disabled(self):
@@ -140,14 +141,14 @@ class Plugin(plugin.PluginBase):
         stage=plugin.Stages.STAGE_MISC,
         name=okkcons.Stages.CLIENT_SECRET_GENERATED,
         condition=lambda self: (
-            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
-            not self.environment[oengcommcons.KeycloakEnv.CONFIGURED] and
-            not self.environment[
+            self.environment[oengcommcons.KeycloakEnv.ENABLE]
+            and not self.environment[oengcommcons.KeycloakEnv.CONFIGURED]
+            and not self.environment[
                 oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET
             ]
         )
     )
-    def  _misc_client_secret(self):
+    def _misc_client_secret(self):
         client_secret = secrets.token_urlsafe(nbytes=16)
         self.environment[
             oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_SECRET
@@ -176,8 +177,8 @@ class Plugin(plugin.PluginBase):
             ogdwhcons.Stages.GRAFANA_CONFIG,
         ),
         condition=lambda self: (
-            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
-            not self.environment[oengcommcons.KeycloakEnv.CONFIGURED]
+            self.environment[oengcommcons.KeycloakEnv.ENABLE]
+            and not self.environment[oengcommcons.KeycloakEnv.CONFIGURED]
         )
     )
     def _misc_keycloak_enabled(self):
@@ -239,8 +240,7 @@ class Plugin(plugin.PluginBase):
                     '{db_content}\n'
                 ).format(
                     client_id=self.environment[
-                        oengcommcons.KeycloakEnv
-                            .KEYCLOAK_OVIRT_INTERNAL_CLIENT_ID
+                        oengcommcons.KeycloakEnv.KEYCLOAK_OVIRT_INTERNAL_CLIENT_ID
                     ],
                     client_secret=client_secret,
                     userinfo_endpoint=userinfo_endpoint,
@@ -330,12 +330,11 @@ class Plugin(plugin.PluginBase):
             )
         )
 
-
     def _build_keycloak_url(self):
         fqdn = self.environment[
             oenginecons.ConfigEnv.ENGINE_FQDN
         ]
-        keycloak_web_context=okkcons.Const.KEYCLOAK_WEB_CONTEXT
+        keycloak_web_context = okkcons.Const.KEYCLOAK_WEB_CONTEXT
         keycloak_url = f'https://{fqdn}/{keycloak_web_context}'
         return keycloak_url
 

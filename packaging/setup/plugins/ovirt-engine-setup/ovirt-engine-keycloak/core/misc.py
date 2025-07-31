@@ -48,8 +48,8 @@ class Plugin(plugin.PluginBase):
             osetupcons.Stages.DIALOG_TITLES_S_PRODUCT_OPTIONS,
         ),
         condition=lambda self: (
-            self.environment[oenginecons.CoreEnv.ENABLE] and
-            not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE]
+            self.environment[oenginecons.CoreEnv.ENABLE]
+            and not self.environment[osetupcons.CoreEnv.DEVELOPER_MODE]
         ),
     )
     def _customization(self):

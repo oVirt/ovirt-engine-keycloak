@@ -79,8 +79,8 @@ class Plugin(plugin.PluginBase):
     @plugin.event(
         stage=plugin.Stages.STAGE_MISC,
         condition=lambda self: (
-            self.environment[okkcons.DBEnv.PASSWORD] is not None and
-            self.environment[okkcons.RemoveEnv.REMOVE_DATABASE]
+            self.environment[okkcons.DBEnv.PASSWORD] is not None
+            and self.environment[okkcons.RemoveEnv.REMOVE_DATABASE]
         ),
         after=(
             okkcons.Stages.DB_CREDENTIALS_AVAILABLE,

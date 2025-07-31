@@ -29,7 +29,6 @@ class Plugin(plugin.PluginBase):
     def __init__(self, context):
         super(Plugin, self).__init__(context=context)
 
-
     @plugin.event(
         stage=plugin.Stages.STAGE_BOOT,
         before=(

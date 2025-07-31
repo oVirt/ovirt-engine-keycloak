@@ -16,8 +16,6 @@ import gettext
 from otopi import util
 from otopi import plugin
 
-from ovirt_engine_setup import constants as osetupcons
-from ovirt_engine_setup.engine import constants as oenginecons
 from ovirt_engine_setup.engine_common import constants as oengcommcons
 from ovirt_engine_setup.engine_common import database
 from ovirt_engine_setup.keycloak import constants as okkcons
@@ -46,8 +44,8 @@ class Plugin(plugin.PluginBase):
             okkcons.Stages.CORE_ENABLE,
         ),
         condition=lambda self: (
-            self.environment[oengcommcons.KeycloakEnv.ENABLE] and
-            self.environment[okkcons.DBEnv.PASSWORD] is not None
+            self.environment[oengcommcons.KeycloakEnv.ENABLE]
+            and self.environment[okkcons.DBEnv.PASSWORD] is not None
         ),
     )
     def _misc(self):

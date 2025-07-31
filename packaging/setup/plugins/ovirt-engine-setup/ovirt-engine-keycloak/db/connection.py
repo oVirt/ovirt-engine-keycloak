@@ -36,8 +36,8 @@ class Plugin(plugin.PluginBase):
             oengcommcons.Stages.DIALOG_TITLES_S_DATABASE,
         ),
         condition=lambda self: (
-            self.environment[oenginecons.CoreEnv.ENABLE] and
-            self.environment[oengcommcons.KeycloakEnv.ENABLE]
+            self.environment[oenginecons.CoreEnv.ENABLE]
+            and self.environment[oengcommcons.KeycloakEnv.ENABLE]
         )
     )
     def _customization(self):
