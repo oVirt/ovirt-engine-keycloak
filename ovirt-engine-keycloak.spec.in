@@ -33,6 +33,7 @@ URL:		http://keycloak.org
 BuildArch:	noarch
 Source:		%{name}-@RPM_VERSION@.tar.gz
 
+BuildRequires:	make
 BuildRequires:	unzip
 
 Requires:	%{name}-setup >= %{version}
