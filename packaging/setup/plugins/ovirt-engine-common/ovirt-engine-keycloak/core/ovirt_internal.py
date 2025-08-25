@@ -41,6 +41,15 @@ class Plugin(plugin.PluginBase):
         self._tempKcadmConfigPath = None
 
     @plugin.event(
+        stage=plugin.Stages.STAGE_INIT,
+    )
+    def _init(self):
+        self.environment.setdefault(
+            okkcons.CoreEnv.OVIRT_ENGINE_KEYCLOAK_CONFIG_DELAY,
+            okkcons.Const.OVIRT_ENGINE_KEYCLOAK_CONFIG_DELAY_SECONDS,
+        )
+
+    @plugin.event(
         stage=plugin.Stages.STAGE_SETUP,
     )
     def _setup(self):
@@ -98,7 +107,9 @@ class Plugin(plugin.PluginBase):
             # TODO sometimes keycloak app is not ready soon enough  resulting
             # in 503 error on attempt to use kcadm.sh / api
             # This sleep is only a workaround until better way is found
-            time.sleep(30)
+            time.sleep(self.environment[
+                okkcons.CoreEnv.OVIRT_ENGINE_KEYCLOAK_CONFIG_DELAY
+            ])
 
             self._setup_keystore()
 
