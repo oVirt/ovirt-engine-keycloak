@@ -127,6 +127,10 @@ ln -sf %{_datadir}/%{name}/bin/client/keycloak-client-registration-cli-@KEYCLOAK
 %{ovirt_engine_data}/setup/plugins/*/ovirt-engine-keycloak/
 
 %changelog
+* Fri Oct 17 2025 Jean-Louis Dupond <jean-louis@dupond.be> - 15.0.2-7
+- Build for CentOS 10
+- Fix several linting errors
+
 * Fri Oct 07 2022 Martin Perina <mperina@redhat.com> - 15.0.2-6
 - Set password of admin@ovirt to be engine admin password
 - packaging: setup: Filter from logs secrets from otopi answer files
