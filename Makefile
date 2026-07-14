@@ -10,17 +10,10 @@
 KEYCLOAK_VERSION="15.0.2"
 
 # RPM version specification
-RPM_VERSION="${KEYCLOAK_VERSION}"
+PACKAGE_RPM_VERSION="${KEYCLOAK_VERSION}"
 
-RPM_RELEASE_MAIN="8"
-
-# For stable releases it should be empty
-#RPM_RELEASE_SUFFIX=""
-# For nightly release it should contain githash and current date
-RPM_RELEASE_SUFFIX=".0.master.$(shell date -u +%Y%m%d%H%M%S).git$(GIT_HASH)"
-
-
-RPM_RELEASE="$(RPM_RELEASE_MAIN)$(RPM_RELEASE_SUFFIX)"
+# RPM release - can be overridden by CI/CD via PACKAGE_RPM_RELEASE environment variable
+PACKAGE_RPM_RELEASE?=8.master
 
 EXTRA_BUILD_FLAGS=
 BUILD_VALIDATION=1
@@ -40,7 +33,10 @@ KEYCLOAK_OVERLAY_URL="https://github.com/keycloak/keycloak/releases/download/${K
 #
 BUILD_FLAGS:=$(BUILD_FLAGS) $(EXTRA_BUILD_FLAGS)
 
-TARBALL=$(PACKAGE_NAME)-$(RPM_VERSION).tar.gz
+TARBALL=$(PACKAGE_NAME)-$(PACKAGE_RPM_VERSION).tar.gz
+TMPREPOS = tmp.repos
+RPMBUILD_ARGS := --define="_topdir `pwd`/$(TMPREPOS)"
+RPMBUILD_ARGS += $(if $(RELEASE_SUFFIX),--define="release_suffix $(RELEASE_SUFFIX)")
 BUILD_FILE=tmp.built
 
 
@@ -54,8 +50,8 @@ BUILD_FILE=tmp.built
 	-e "s|@DATAROOT_DIR@|$(DATAROOT_DIR)|g" \
 	-e "s|@PKG_DATA_DIR@|$(PKG_DATA_DIR)|g" \
 	-e "s|@PKG_STATE_DIR@|$(PKG_STATE_DIR)|g" \
-	-e "s|@RPM_VERSION@|$(RPM_VERSION)|g" \
-	-e "s|@RPM_RELEASE@|$(RPM_RELEASE)|g" \
+	-e "s|@RPM_VERSION@|$(PACKAGE_RPM_VERSION)|g" \
+	-e "s|@RPM_RELEASE@|$(PACKAGE_RPM_RELEASE)|g" \
 	-e "s|@PACKAGE_NAME@|$(PACKAGE_NAME)|g" \
 	$< > $@
 
@@ -107,6 +103,22 @@ download-keycloak:
 	if [ ! -f "$(KEYCLOAK_OVERLAY_ZIP)" ]; then \
 		curl -L -o "$(KEYCLOAK_OVERLAY_ZIP)" "$(KEYCLOAK_OVERLAY_URL)"; \
 	fi
+
+rpm: srpm
+	rpmbuild $(RPMBUILD_ARGS) --rebuild "$(TMPREPOS)"/SRPMS/*.src.rpm
+	@echo
+	@echo "rpm available at '$(TMPREPOS)'"
+	@echo
+
+srpm: dist
+	rm -rf "$(TMPREPOS)"
+	mkdir -vp $(TMPREPOS)/{SPECS,RPMS,SRPMS,SOURCES}
+	rpmbuild $(RPMBUILD_ARGS) -ts $(TARBALL)
+	@echo
+	@echo "srpm available at '$(TMPREPOS)'"
+	@echo
+
+.PHONY: rpm srpm
 
 # copy SOURCEDIR to TARGETDIR
 # exclude EXCLUDEGEN a list of files to exclude with .in

@@ -1,7 +1,5 @@
 # Keycloak SSO setup for oVirt Engine
 
-[![Copr build status](https://copr.fedorainfracloud.org/coprs/ovirt/ovirt-master-snapshot/package/ovirt-engine-keycloak/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/ovirt/ovirt-master-snapshot/package/ovirt-engine-keycloak/)
-
 Welcome to the ovirt-engine-keycloak source repository.
 
 ## Documentation
