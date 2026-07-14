@@ -11,8 +11,8 @@
 	-j1 \\\
 	BUILD_VALIDATION=0 \\\
 	PACKAGE_NAME=%{name} \\\
-	RPM_VERSION=%{version} \\\
-	RPM_RELEASE=%{release} \\\
+	PACKAGE_RPM_VERSION=%{version} \\\
+	PACKAGE_RPM_RELEASE=%{release} \\\
 	PREFIX=%{_prefix} \\\
 	DATAROOT_DIR=%{_datadir} \\\
 	LOCALSTATE_DIR=%{_localstatedir} \\\
@@ -25,7 +25,7 @@
 ########################################################
 Name:		ovirt-engine-keycloak
 Version:	@RPM_VERSION@
-Release:	@RPM_RELEASE@%{?dist}
+Release:	@RPM_RELEASE@%{?release_suffix}%{?dist}
 Summary:	%{product_name}
 Group:		Virtualization/Management
 License:	ASL 2.0
